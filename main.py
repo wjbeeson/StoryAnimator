@@ -9,12 +9,12 @@ voice = 'chad'
 version = "eleven_multilingual_v2"
 screen_size = (1920, 1080)
 font = Font(
-    name="Ariel",
-    size=20,
+    name="roboto",
+    size=60,
     color="white",
-    stroke_color="pink",
-    stroke_width=5,
-    highlight_color="blue",
+    stroke_color="black",
+    stroke_width=3,
+    highlight_color="orange",
 )
 
 with open(script_file, "r") as file:
@@ -31,12 +31,13 @@ timestamps = input_hardcoded_values(dummy_data)
 
 
 animator = ClipAnimator(screen_size)
-bbox = Bbox([[0,0],[1920,1080]])
+bbox = Bbox([[192,108],[1728,972]])
 typeset_captions(
     animator=animator,
     font=font,
     caption_bb=bbox,
     script=script,
-    sync_values=get_sync_values_from_timestamps(timestamps)
-
+    sync_values=get_sync_values_from_timestamps(timestamps),
+    narration_file=narration_file
 )
+breakpoint()

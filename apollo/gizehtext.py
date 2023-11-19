@@ -21,7 +21,7 @@ except ImportError:
 import numpy as np
 from moviepy.editor import ImageClip
 
-import colors as colors
+import forge.colors as colors
 
 #
 # this code requires a modification to gizeh\gizeh.py.

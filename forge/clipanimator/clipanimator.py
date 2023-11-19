@@ -12,6 +12,9 @@ from .ease_functions import easeLinear, easeOutBack
 
 from .transitioneffecttype import TransitionEffectType
 
+def hash_hack(self):
+    return id(self)
+VideoClip.__hash__ = hash_hack
 
 def resize_popup(t):
    x = min(1,t/.3 * .90 + .1)
@@ -141,7 +144,7 @@ class ClipAnimator:
         clip_positioner.set_clip(clip)
         clip_sizer.set_clip(clip)
         self._clip_to_positioner[clip] = clip_positioner
-        self._clip_to_sizer[clip] = clip_sizer
+        self._clip_to_sizer[id(clip)] = clip_sizer
 
         if transition_in != None  and transition_in.value & TransitionEffectType.POP.value:
             self._clip_to_positioner[clip]._adjust_pos_fn = \
