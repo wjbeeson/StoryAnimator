@@ -69,7 +69,7 @@ def _preprocess_text_bubbles( timeline, meme : dto.Meme, panel_clips):
     # adjust bounding boxes and calculate font sizes
 
     for i,panel in enumerate(meme.panels):
-        for l,content in enumerate(panel.content):
+        for l,content in enumerate(panel.script):
             if content.text_bubble:
                 tb = ContentElementFacade(meme,i,l)
 
@@ -123,7 +123,7 @@ def _preprocess_text_bubbles( timeline, meme : dto.Meme, panel_clips):
 
 
         for panel in meme.panels:
-            for content in panel.content:
+            for content in panel.script:
                 if content.text_bubble and not content.text_bubble.font.size:
                     content.text_bubble.font.size = estimated_size
 
@@ -166,15 +166,15 @@ def typeset_captions(
         speaker_to_font[i]=font
 
     for i, panel in enumerate(meme.panels):
-        for l, content in enumerate(panel.content):
+        for l, content in enumerate(panel.script):
             tb = ContentElementFacade(meme,i,l)
             if tb.type == dto.ContentType.CAPTION:
 
                 # content speaker number is 1 based, for *reasons*
                 font = speaker_to_font[content.speaker-1]
-                typesetter = CaptionTypesetter(animator, font, transitions)
+                typesetter = CaptionTypesetter(animator, font, transitions) # making typesetter
 
-                typesetter.show_captions(
+                typesetter.show_captions( # do its thing
                     caption_bb,
                     tb.text,
                     _get_temporal_data(timeline, i,l, len(tb.timestamps)),
@@ -196,7 +196,7 @@ def typeset_text_bubbles(
     )
 
     for i, panel in enumerate(meme.panels):
-        for l, content in enumerate(panel.content):
+        for l, content in enumerate(panel.script):
             if content.text_bubble:
                 tb = ContentElementFacade(meme,i,l)
 

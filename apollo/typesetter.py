@@ -367,7 +367,7 @@ class CaptionTypesetter(Typesetter):
 
         arrangement = self._calc_text_arrangement(
             text=apollo_utils.strip_ws(text),
-            sync_values = sync_values,
+            sync_values = sync_values, #list of tuples. Timestamps & durations
             bbox = caption_area,
             alignment = alignment,
             fn_calc_word_size= lambda word :  self._cache[word].size,

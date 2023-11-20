@@ -125,7 +125,7 @@ def clean_raw(raw_image, meme):
     # first two solid cleaning, while keeping track of inpainting bb's
     draw = ImageDraw.Draw(raw_image)
     for i,panel in enumerate(meme.panels):
-        for l,content in enumerate(panel.content):
+        for l,content in enumerate(panel.script):
             ce = ContentElementFacade(meme,i,l)
             match ce.clean:
                 case dto.CleanMethod.SOLID:

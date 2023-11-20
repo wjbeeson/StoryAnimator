@@ -93,7 +93,7 @@ def tts(meme_filename, production):
             else:
                 text = combine_text_elements(meme, panel_num, content_nums)
 
-            speaker_num = meme.panels[panel_num].content[content_nums[0]].speaker
+            speaker_num = meme.panels[panel_num].script[content_nums[0]].speaker
 
             # for content elements like picture that don't have a speaker. an empty
             # narration file will be generated.  currently i use it as a placeholder

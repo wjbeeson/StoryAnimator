@@ -381,7 +381,12 @@ class CaptionTypesetter(Typesetter):
         # need a copy of the font to create highlight words
         self._font = font
 
-    def show_captions(self, caption_area : Bbox, script, sync_values, alignment=TextAlignment.Center):
+    def show_captions(self,
+                      caption_area : Bbox,
+                      script,
+                      sync_values,
+                      alignment=TextAlignment.Center,
+                      ):
 
         arrangement = self._calc_text_arrangement(
             text=strip_ws(script),
