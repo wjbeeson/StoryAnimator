@@ -84,7 +84,7 @@ def write_video(animator, caption_bb, narration_file, background_clip,screen_siz
     # Step 1: Create composite of captions to be able to add a mask to.
     caption_comp = CompositeVideoClip([*animator.clips],size=screen_size)  # make composite from captions only
     caption_comp = create_gradient_mask(caption_comp, caption_bb)
-    caption_comp.set_duration(probe_audio(narration_file)).write_videofile("caption_comp_test.mp4",fps=5)
+    #caption_comp.set_duration(probe_audio(narration_file)).write_videofile("caption_comp_test.mp4",fps=5)
 
 
     # Overlay the text clip on the first video clip
@@ -96,12 +96,12 @@ def write_video(animator, caption_bb, narration_file, background_clip,screen_siz
     video = CompositeVideoClip([background_clip,caption_comp]) # remove and apply gradient mask
 
     # write video
-    video.set_duration(probe_audio(narration_file)).write_videofile("flower.mp4")
+    video.set_duration(probe_audio(narration_file)).write_videofile("temp/feature_nosound.mp4")
 
     # concatenate with audio
-    input_video = ffmpeg.input("flower.mp4")
+    input_video = ffmpeg.input("temp/feature_nosound.mp4")
     input_audio = ffmpeg.input(narration_file)
-    ffmpeg.concat(input_video, input_audio, v=1, a=1).output("temp/test.mp4").overwrite_output().run()
+    ffmpeg.concat(input_video, input_audio, v=1, a=1).output("temp/feature.mp4").overwrite_output().run()
 
 
 def probe_audio(audio_file):
