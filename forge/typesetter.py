@@ -13,7 +13,9 @@ FONT_SIZE_GUESS = 20
 TAB_VALUE = 8
 
 WHITESPACE_CHARS = "\n\t "
-def get_tokens(text, discard_ws = True):
+
+
+def get_tokens(text, discard_ws=True):
     """
     Parses text into a list of word tokens and whitespace tokens
     Returns
@@ -22,19 +24,24 @@ def get_tokens(text, discard_ws = True):
     """
     punctuation = '?.,"!\-:;\'\(\)\/'
     regex = f"[-+*•\w{punctuation}]+|[{WHITESPACE_CHARS}]+"
-    return [ word for word in re.findall(regex, text) if not discard_ws or word[0] not in WHITESPACE_CHARS]
+    return [word for word in re.findall(regex, text) if not discard_ws or word[0] not in WHITESPACE_CHARS]
 
-def count_word_tokens( token_list ):
+
+def count_word_tokens(token_list):
     return len([token for token in token_list if token[0] not in WHITESPACE_CHARS])
+
 
 def str_remove_any(s, chars_to_remove):
     return s.translate({ord(i): None for i in chars_to_remove})
 
+
 def strip_ws(text):
     return " ".join(get_tokens(text))
+
+
 @dataclass
 class Font:
-    def __init__(self, name, size, color,  stroke_color=None, stroke_width = None, highlight_color = None):
+    def __init__(self, name, size, color, stroke_color=None, stroke_width=None, highlight_color=None):
         self.name = name
         self.size = size
         self.color = color
@@ -49,7 +56,7 @@ class Font:
             fontsize=self.size,
             color=self.color,
             stroke_color=self.stroke_color,
-            stroke_width = self.stroke_width
+            stroke_width=self.stroke_width
         )
 
 
@@ -64,8 +71,8 @@ class Typesetter:
     # leading appeared to be about 10% too large
     @property
     def row_height(self):
-        return int(self._fn_calc_word_size("Wy")[1]) * .8 # the np array created by GzTextClip is a bit too tall,
-                                                          # easier to correct for it here
+        return int(self._fn_calc_word_size("Wy")[1]) * .8  # the np array created by GzTextClip is a bit too tall,
+        # easier to correct for it here
 
     @property
     def word_spacing(self):
@@ -73,7 +80,6 @@ class Typesetter:
 
     def _y(self, bbox, row):
         return int(bbox.ymin + row * self.row_height)
-
 
     def _calc_text_arrangement(self,
                                text: str,
@@ -111,17 +117,17 @@ class Typesetter:
         # into a list of word,code tuples e.g. [('end',None),('of',None),('sentence','\n\n\n')
         #
 
-        words = get_tokens( text, False)
+        words = get_tokens(text, False)
 
         # process isolated punctuation
         words_cleaned = []
         trans = str.maketrans("", "", string.punctuation)
 
-        for i,word in enumerate(words):
-            if word.translate(trans)=='':
-                if i == 0: # prepend to following word
+        for i, word in enumerate(words):
+            if word.translate(trans) == '':
+                if i == 0:  # prepend to following word
                     if len(words) > 1:
-                        words[i+2] = word + words[i+2]
+                        words[i + 2] = word + words[i + 2]
                 else:
                     words_cleaned[-2] = words_cleaned[-2] + word
 
@@ -129,12 +135,12 @@ class Typesetter:
             else:
                 words_cleaned.append(word)
 
-#        while words:
-#            word = words.pop(0)
-#            if word in string.punctuation:
-#                words.pop(0)
-#            else:
-#                words_cleaned.append(word)
+        #        while words:
+        #            word = words.pop(0)
+        #            if word in string.punctuation:
+        #                words.pop(0)
+        #            else:
+        #                words_cleaned.append(word)
 
         words = words_cleaned
         words = _filter_profanity(words)
@@ -150,7 +156,7 @@ class Typesetter:
         for word in words:
             if '\n' in word: self._rows += word.count('\n')
 
-#        self._justified_height = (bbox.height - self._rows * self.row_height) / (self._rows-1)
+        #        self._justified_height = (bbox.height - self._rows * self.row_height) / (self._rows-1)
 
         while words:
             row_lengths = [0]
@@ -183,7 +189,6 @@ class Typesetter:
             # for font size determination
             if words and one_pass:
                 return None
-
 
         return text_arrangement
 
@@ -260,7 +265,6 @@ class Typesetter:
         # use the callback to get the word size
         width, height = self._fn_calc_word_size(word)
 
-
         if not bbox.contains(x + width, self._y(bbox, row) + height):
             if not force_fit and not add_linebreaks:
                 return []
@@ -295,19 +299,18 @@ class Typesetter:
 
         prev_duration = 0
         if arrangement:
-            _,_,_,prev_duration = arrangement[0]
+            _, _, _, prev_duration = arrangement[0]
 
         total_duration = duration + prev_duration
 
         arrangement_entry = (
             word,
-            (int(self._calc_row_alignment( bbox, x, row_lengths[row], alignment )),int(self._y(bbox, row))),
+            (int(self._calc_row_alignment(bbox, x, row_lengths[row], alignment)), int(self._y(bbox, row))),
             start_time,
             total_duration
         )
 
         return [arrangement_entry] + arrangement
-
 
     def _calc_row_alignment(self, bbox, x, row_length, alignment):
         match alignment:
@@ -322,12 +325,14 @@ class Typesetter:
 
         return x + dx
 
+
 Typesetter.PROFANITY_LIST = ["shucks"]
 Typesetter.PROFANITY_GRAWLIX = "%@$&*!"
 Typesetter.ANONYMOUS = "*****"
 
+
 def _filter_profanity(words):
-    #if not Typesetter.PROFANITY_LIST:
+    # if not Typesetter.PROFANITY_LIST:
     #   with open(config.FORGE_PROFANITY_LIST, 'r') as f:
     #       Typesetter.PROFANITY_LIST = [ line.strip().lower() for line in f.readlines()]
 
@@ -337,9 +342,11 @@ def _filter_profanity(words):
         elif word == "NOSHOW":
             word = Typesetter.ANONYMOUS
 
-        return Typesetter.PROFANITY_GRAWLIX if str_remove_any( word.lower(), string.punctuation) in Typesetter.PROFANITY_LIST else word
+        return Typesetter.PROFANITY_GRAWLIX if str_remove_any(word.lower(),
+                                                              string.punctuation) in Typesetter.PROFANITY_LIST else word
 
     return [sanitize_word(word) for word in words]
+
 
 #    for word in Typesetter.PROFANITY_LIST:
 #        result = re.sub('(?i)' + re.escape(word), lambda m: Typesetter.PROFANITY_GRAWLIX, text)
@@ -349,7 +356,7 @@ def _filter_profanity(words):
 
 class TextClipCache:
 
-    def __init__(self, font : Font):
+    def __init__(self, font: Font):
         assert font.name
         assert font.size
         assert font.color
@@ -364,13 +371,14 @@ class TextClipCache:
                 color=self._font.color,
                 fontsize=self._font.size,
                 font=self._font.name,
-                stroke_color= self._font.stroke_color,
-                stroke_width= self._font.stroke_width)
+                stroke_color=self._font.stroke_color,
+                stroke_width=self._font.stroke_width)
 
         return self._word_to_clip[item]
 
+
 class CaptionTypesetter(Typesetter):
-    def __init__(self, animator, font, transitions=[TransitionEffectType.NONE,TransitionEffectType.NONE]):
+    def __init__(self, animator, font, transitions=[TransitionEffectType.NONE, TransitionEffectType.NONE]):
 
         self._animator = animator
         self._transition_in = transitions[0]
@@ -382,48 +390,65 @@ class CaptionTypesetter(Typesetter):
         self._font = font
 
     def show_captions(self,
-                      caption_area : Bbox,
+                      caption_area: Bbox,
                       script,
                       sync_values,
+                      duration,
                       alignment=TextAlignment.Center,
                       ):
+        self._animator: ClipAnimator
 
         arrangement = self._calc_text_arrangement(
             text=strip_ws(script),
-            sync_values = sync_values, #list of tuples. Timestamps & durations
-            bbox = caption_area,
-            alignment = alignment,
-            fn_calc_word_size= lambda word :  self._cache[word].size,
+            sync_values=sync_values,  # list of tuples. Timestamps & durations
+            bbox=caption_area,
+            alignment=alignment,
+            fn_calc_word_size=lambda word: self._cache[word].size,
             preserve_whitespace=False,
             force_fit=False)  # since i'm testing various font sizes that won't fit, allow the call to fail
 
         # use the arrangement to position the clips in space and time.  note it is not necessary
         # to create TextClips here since they are already in the cache.
-        for i,(word,position,start_time,duration) in enumerate(arrangement):
+
+        parent_clip = ColorClip((1,1)).set_position((0, 0)).set_start(0).set_duration(duration).set_opacity(0.0)
+        parent_clip = self._animator.add_clip(parent_clip, None)
+        positions = []
+        for i, (word, position, start_time, duration) in enumerate(arrangement):
 
             if i < len(arrangement) - 1:
                 _, _, next_start_time, _ = arrangement[i + 1]
                 word_duration = next_start_time - start_time
             else:
                 word_duration = duration
+                #duration = duration + 1
 
             #
             #
             #
-
 
             highlight_word = GzTextClip(
-                    txt=word,
-                    color=self._font.highlight_color,
-                    fontsize=self._font.size,
-                    font=self._font.name,
-                    stroke_color=self._font.stroke_color,
-                    stroke_width=self._font.stroke_width )
+                txt=word,
+                color=self._font.highlight_color,
+                fontsize=self._font.size,
+                font=self._font.name,
+                stroke_color=self._font.stroke_color,
+                stroke_width=self._font.stroke_width)
 
-            self._animator.add_clip(highlight_word.set_position( position )
-                                   .set_start( start_time )
-                                   .set_duration( word_duration ), self._transition_in)
+            self._animator.add_child_clip(
+                parent=parent_clip,
+                clip=highlight_word
+                .set_start(start_time)
+                .set_duration(word_duration),
+                relative_pos=position
+            )
+            positions.append(position)
+            self._animator.add_child_clip(
+                parent=parent_clip,
+                clip=self._cache[word]
+                .set_start(start_time + word_duration)
+                .set_duration(duration - word_duration),
+                relative_pos=position
+            )
+            positions.append(position)
 
-            self._animator.add_clip(self._cache[word].set_position( position )
-                                   .set_start( start_time+word_duration )
-                                   .set_duration( duration-word_duration),)
+        return positions

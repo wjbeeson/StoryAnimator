@@ -15,6 +15,7 @@ from .transitioneffecttype import TransitionEffectType
 def hash_hack(self):
     return id(self)
 VideoClip.__hash__ = hash_hack
+ColorClip.__hash__ = hash_hack
 
 def resize_popup(t):
    x = min(1,t/.3 * .90 + .1)
@@ -77,7 +78,7 @@ class ClipAnimator:
         # child inherits parent's duration if not specified
         if not clip.duration:
             duration = parent.duration + parent.start - clip.start
-            assert duration > 0
+            #assert duration > 0
             clip = clip.set_duration(duration)
 
         p = ClipPositionerDigitized()

@@ -43,7 +43,7 @@ def get_timestamps_from_narration(audio_file):
         return results
 
 
-def align_timestamps_with_script(timestamps, script_words: str):
+def align_timestamps_with_script(timestamps, script_words: list):
     # Step 1: Prep lists for comparison
     detected_words = []
     for timestamp in timestamps:

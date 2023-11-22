@@ -17,23 +17,28 @@ font = Font(
     highlight_color="orange",
 )
 y_shift_line = 200
+background_clip = VideoFileClip("C:\\Users\\wjbee\\Desktop\\burning-tree-stunning-flames-SBV-346704080-HD.mp4")
 
 with open(script_file, "r") as file:
     script: str = file.read()
 
 #narration_file = generate_narration_file(script, voice, version)
-narration_file = "temp/2339b1ea-2681-4397-8f1d-f6c104d485b0.wav"
 
 #script_words = script.strip().split(" ")
 #raw_timestamps = get_timestamps_from_narration(narration_file)
 #timestamps = align_timestamps_with_script(raw_timestamps, script_words)
-dummy_data = "[['Our', 0.12, 0.33], ['father', 0.33, 0.69], ['who', 0.69, 0.84], ['rolls', 0.84, 1.2], ['in', 1.2, 1.35], ['heaven,', 1.35, 1.86], ['Ameng', 1.89, 2.37], ['be', 2.4, 2.58], ['thy', 2.58, 2.82], ['name.', 2.82, 3.51], ['thy', 3.75, 4.17], ['goats', 4.17, 4.5], ['may', 4.5, 4.68], ['come,', 4.68, 5.13], ['thy', 5.13, 5.4], ['will', 5.4, 5.61], ['be', 5.61, 5.76], ['shattered,', 5.76, 6.42], ['on', 6.42, 6.84], ['earth', 6.84, 7.2], ['as', 7.2, 7.41], ['it', 7.41, 7.56], ['is', 7.56, 7.77], ['in', 7.77, 7.89], ['heaven.', 7.89, 8.46], ['Give', 8.55, 9.0], ['us', 9.0, 9.15], ['this', 9.15, 9.36], ['day', 9.36, 9.66], ['our', 9.66, 9.81], ['daily', 9.81, 10.14], ['cheese,', 10.14, 10.8], ['and', 10.8, 11.1], ['forgive', 11.1, 11.46], ['us', 11.46, 11.61], ['our', 11.61, 11.79], ['throwing,', 11.79, 12.42], ['as', 12.42, 12.78], ['we', 12.78, 12.9], ['forgive', 12.9, 13.29], ['those', 13.29, 13.56], ['who', 13.56, 13.71], ['throw', 13.71, 13.98], ['against', 13.98, 14.37], ['us,', 14.37, 14.76], ['and', 14.76, 15.12], ['lead', 15.12, 15.36], ['us', 15.36, 15.51], ['not', 15.51, 15.75], ['into', 15.75, 16.02], ['Mayhem,', 16.02, 16.74], ['but', 16.74, 17.13], ['deliver', 17.13, 17.55], ['us', 17.55, 17.7], ['from', 17.7, 17.91], ['Justice.', 17.91, 18.72]]"
+
+
+narration_file = 'temp/68aca237-8c58-4eaa-82f1-a6973f0b8508.wav'
+
+
+dummy_data = "[['Our', 0.12, 0.3], ['father', 0.3, 0.69], ['who', 0.69, 0.84], ['rolls', 0.84, 1.14], ['in', 1.14, 1.26], ['heaven,', 1.26, 1.77], ['Ameng', 1.8, 2.29], ['be', 2.31, 2.52], ['thy', 2.52, 2.73], ['name.', 2.73, 3.42], ['thy', 3.48, 3.96], ['goats', 3.96, 4.29], ['may', 4.29, 4.47], ['come,', 4.47, 5.01], ['thy', 5.01, 5.34], ['will', 5.34, 5.55], ['be', 5.55, 5.7], ['shattered,', 5.7, 6.21], ['on', 6.21, 6.6], ['earth', 6.6, 6.9], ['as', 6.9, 7.05], ['it', 7.05, 7.17], ['is', 7.17, 7.35], ['in', 7.35, 7.47], ['heaven.', 7.47, 8.1], ['Give', 8.49, 8.94], ['us', 8.94, 9.12], ['this', 9.12, 9.33], ['day', 9.33, 9.63], ['our', 9.63, 9.78], ['daily', 9.78, 10.11], ['cheese,', 10.11, 10.74], ['and', 10.74, 11.01], ['forgive', 11.01, 11.37], ['us', 11.37, 11.52], ['our', 11.52, 11.67], ['throwing,', 11.67, 12.36], ['as', 12.36, 12.72], ['we', 12.72, 12.87], ['forgive', 12.87, 13.29], ['those', 13.29, 13.59], ['who', 13.59, 13.71], ['throw', 13.71, 13.98], ['against', 13.98, 14.37], ['us,', 14.37, 14.79], ['and', 14.79, 15.12], ['lead', 15.12, 15.36], ['us', 15.36, 15.48], ['not', 15.48, 15.75], ['into', 15.75, 15.99], ['Mayhem,', 15.99, 16.65], ['but', 16.65, 17.04], ['deliver', 17.04, 17.43], ['us', 17.43, 17.61], ['from', 17.61, 17.85], ['Justice.', 17.85, 18.66]]"
 timestamps = input_hardcoded_values(dummy_data)
 
 
 animator = ClipAnimator(screen_size)
 bbox = Bbox([[192,108],[1728,972]])
-typeset_captions(
+positions = typeset_captions(
     animator=animator,
     font=font,
     caption_bb=bbox,
@@ -41,10 +46,11 @@ typeset_captions(
     sync_values=get_sync_values_from_timestamps(timestamps),
     narration_file=narration_file
 )
-scroll_captions(animator, y_shift_line)
-breakpoint()
+scroll_captions(animator, y_shift_line, positions)
 write_video(
     animator=animator,
     caption_bb=bbox,
-    narration_file=narration_file
+    narration_file=narration_file,
+    background_clip=background_clip,
+    screen_size=screen_size
 )
