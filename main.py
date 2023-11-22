@@ -4,7 +4,7 @@ from forge.forge_video import *
 from forge.clipanimator.clipanimator import ClipAnimator
 from matplotlib.transforms import Bbox
 from forge.typesetter import *
-script_file = "C:\\Users\\wjbee\\Desktop\\Example File.txt"
+script_file = "test/test_script.txt"
 voice = 'chad'
 version = "eleven_multilingual_v2"
 screen_size = (1920, 1080)
