@@ -84,15 +84,14 @@ def write_video(animator, caption_bb, narration_file, background_clip,screen_siz
 
     # Step 1: Create composite of captions and add the mask
     caption_comp = CompositeVideoClip([*animator.clips],size=screen_size)  # make composite from captions only
-    caption_comp.set_mask(create_gradient_mask(caption_comp, caption_bb))
     #caption_comp.set_duration(probe_audio(narration_file)).write_videofile("temp/caption_comp_test.mp4",fps=5)
 
     # Step 2: Combine captions with background
-    background_mask = (ColorClip(
-        size=((int(caption_bb.size[0]),int(caption_bb.size[1]))),
-        color=(27, 18, 18))
-                  .set_position((int(caption_bb.xmin), int(caption_bb.ymin)))
-                  .set_opacity(0.7))
+    #background_mask = (ColorClip(
+    #    size=((int(caption_bb.size[0]),int(caption_bb.size[1]))),
+    #    color=(27, 18, 18))
+    #              .set_position((int(caption_bb.xmin), int(caption_bb.ymin)))
+    #              .set_opacity(0.7))
     video = CompositeVideoClip([background_clip,caption_comp]) # remove and apply gradient mask
 
     # Step 3: Write Video
@@ -104,6 +103,8 @@ def write_video(animator, caption_bb, narration_file, background_clip,screen_siz
     input_audio = ffmpeg.input(narration_file)
     ffmpeg.concat(input_video, input_audio, v=1, a=1).output("temp/feature.mp4").overwrite_output().run()
 
+def set_mask(get_frame, t):
+    pass
 
 def probe_audio(audio_file):
     probe = ffmpeg.probe(audio_file)
@@ -111,14 +112,14 @@ def probe_audio(audio_file):
     duration = float(stream['duration'])
     return (duration)
 
-def create_gradient_mask(comp, caption_bb:Bbox):
+def create_gradient_mask(comp, caption_bb:Bbox, duration):
     # bugbug: this code requires the following modification in moviepy drawing.py:147
     # if vector is not None:
     #     norm = np.linalg.norm(vector)
     #
 
-    cx = int(comp.w)
-    cy = int(comp.h)
+    cx = int(comp[0])
+    cy = int(comp[1])
     top = caption_bb.ymin
     gradient = color_gradient(
         size=(cx, cy),
@@ -127,7 +128,7 @@ def create_gradient_mask(comp, caption_bb:Bbox):
         col1=1.0,
         col2=0
     )
-    mask_clip = ImageClip(gradient, ismask=True).set_duration(comp.duration)
+    mask_clip = ImageClip(gradient, ismask=True).set_duration(duration)
 
     # test code
     #test_image = Image.fromarray(np.uint8(cm.gist_earth(gradient) * 255))
