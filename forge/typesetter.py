@@ -393,13 +393,13 @@ class CaptionTypesetter(Typesetter):
                       caption_area: Bbox,
                       script,
                       sync_values,
-                      duration,
+                      total_duration,
                       alignment=TextAlignment.Center,
                       ):
         self._animator: ClipAnimator
 
         arrangement = self._calc_text_arrangement(
-            text=strip_ws(script),
+            text=script,
             sync_values=sync_values,  # list of tuples. Timestamps & durations
             bbox=caption_area,
             alignment=alignment,
@@ -410,7 +410,7 @@ class CaptionTypesetter(Typesetter):
         # use the arrangement to position the clips in space and time.  note it is not necessary
         # to create TextClips here since they are already in the cache.
 
-        parent_clip = ColorClip((1,1)).set_position((0, 0)).set_start(0).set_duration(duration).set_opacity(0.0)
+        parent_clip = ColorClip((1,1)).set_position((0, 0)).set_start(0).set_duration(total_duration).set_opacity(0.0)
         parent_clip = self._animator.add_clip(parent_clip, None)
         positions = []
         for i, (word, position, start_time, duration) in enumerate(arrangement):
@@ -434,19 +434,22 @@ class CaptionTypesetter(Typesetter):
                 stroke_color=self._font.stroke_color,
                 stroke_width=self._font.stroke_width)
 
+            # The normal word
+            self._animator.add_child_clip(
+                parent=parent_clip,
+                clip=self._cache[word]
+                .set_start(0)
+                .set_duration(total_duration),
+                relative_pos=position
+            )
+            positions.append(position)
+
+            # The highlight word
             self._animator.add_child_clip(
                 parent=parent_clip,
                 clip=highlight_word
                 .set_start(start_time)
                 .set_duration(word_duration),
-                relative_pos=position
-            )
-            positions.append(position)
-            self._animator.add_child_clip(
-                parent=parent_clip,
-                clip=self._cache[word]
-                .set_start(start_time + word_duration)
-                .set_duration(duration - word_duration),
                 relative_pos=position
             )
             positions.append(position)

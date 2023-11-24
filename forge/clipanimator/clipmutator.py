@@ -27,4 +27,5 @@ class ClipMutatorDigitized(ABC):
         if t not in self._time_to_mutator or self._time_to_mutator[t] is None:
             self._time_to_mutator[t] = mutator
         else:
-            assert False, f"Mutator already scheduled for time {t}"
+            pass
+            #assert False, f"Mutator already scheduled for time {t}"

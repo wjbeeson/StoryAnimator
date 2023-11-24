@@ -7,6 +7,7 @@ from moviepy.editor import *
 from pydub import AudioSegment
 import ffmpeg
 from moviepy.video.tools.drawing import color_gradient
+from datetime import datetime
 from PIL import Image
 from matplotlib import cm
 
@@ -27,7 +28,7 @@ def typeset_captions(
         caption_bb,
         script,
         sync_values=sync_values,
-        duration=probe_audio(narration_file),
+        total_duration=probe_audio(narration_file),
         alignment=TextAlignment.Left)
 
     return positions
@@ -44,7 +45,7 @@ def scroll_captions(animator, y_shift_line, positions):
         if current_y_level >= y_shift_line:
 
             # use the previous clip, so shift before it crosses the boundary
-            previous_clip: VideoClip = animator.clips[i-1]
+            previous_clip: VideoClip = animator.clips[i-2] # going back by two to get to a highlight clip
             start_time = previous_clip.start
 
             # use current clip so shift the next line all the way to the top
@@ -80,31 +81,35 @@ def _get_clip_y_positions(positions):
     return y_positions
 
 def write_video(animator, caption_bb, narration_file, background_clip,screen_size):
-    #animator.clips[0].set_position((0,0))
-
     # Step 1: Create composite of captions and add the mask
     caption_comp = CompositeVideoClip([*animator.clips],size=screen_size)  # make composite from captions only
-    #caption_comp.set_duration(probe_audio(narration_file)).write_videofile("temp/caption_comp_test.mp4",fps=5)
+    mask = create_gradient_mask(screen_size, caption_bb, duration=probe_audio(narration_file))
+
+    # fl = lambda pic: np.minimum(pic, gradmask.img)
+    def make_mask_transparent(pic):
+        return np.minimum(pic, mask.img)
+
+    caption_comp.mask = caption_comp.mask.fl_image(make_mask_transparent)
+    #caption_comp.set_duration(probe_audio(narration_file)).write_videofile("temp/caption_test.mp4",fps=30)
+    #breakpoint()
 
     # Step 2: Combine captions with background
-    #background_mask = (ColorClip(
-    #    size=((int(caption_bb.size[0]),int(caption_bb.size[1]))),
-    #    color=(27, 18, 18))
-    #              .set_position((int(caption_bb.xmin), int(caption_bb.ymin)))
-    #              .set_opacity(0.7))
-    video = CompositeVideoClip([background_clip,caption_comp]) # remove and apply gradient mask
+    backdrop = (ColorClip(
+        size=((int(screen_size[0] - 2 * caption_bb.xmin),int(screen_size[1] - 2 * caption_bb.ymin))),
+        color=(27, 18, 18))
+                  .set_position((int(caption_bb.xmin), int(caption_bb.ymin)))
+                  .set_opacity(0.7))
+    video = CompositeVideoClip([background_clip, backdrop, caption_comp]) # remove and apply gradient mask
 
     # Step 3: Write Video
-    video.set_duration(probe_audio(narration_file)).write_videofile("temp/feature_nosound.mp4",fps=5)
-    breakpoint()
+    print(f"Start: {datetime.now()}")
+    video.set_duration(probe_audio(narration_file)).write_videofile("temp/feature_nosound.mp4",fps=60)
+    print(f"End: {datetime.now()}")
 
     # Step 4: Add Audio
     input_video = ffmpeg.input("temp/feature_nosound.mp4")
     input_audio = ffmpeg.input(narration_file)
     ffmpeg.concat(input_video, input_audio, v=1, a=1).output("temp/feature.mp4").overwrite_output().run()
-
-def set_mask(get_frame, t):
-    pass
 
 def probe_audio(audio_file):
     probe = ffmpeg.probe(audio_file)
@@ -112,27 +117,37 @@ def probe_audio(audio_file):
     duration = float(stream['duration'])
     return (duration)
 
-def create_gradient_mask(comp, caption_bb:Bbox, duration):
+def create_gradient_mask(screen_size, caption_bb:Bbox, duration):
     # bugbug: this code requires the following modification in moviepy drawing.py:147
     # if vector is not None:
     #     norm = np.linalg.norm(vector)
-    #
 
-    cx = int(comp[0])
-    cy = int(comp[1])
+    cx = int(screen_size[0])
+    cy = int(screen_size[1])
     top = caption_bb.ymin
-    gradient = color_gradient(
+    gradient_top = color_gradient(
         size=(cx, cy),
         p1=(0, top - 25),
         p2=(0, top + 25),
         col1=1.0,
         col2=0
     )
-    mask_clip = ImageClip(gradient, ismask=True).set_duration(duration)
+
+    bottom = cy - top
+    gradient_bottom = color_gradient(
+        size=(cx, cy),
+        p1=(0, bottom - 25),
+        p2=(0, bottom + 25),
+        col1=0,
+        col2=1.0
+    )
+
+    combined_gradient = np.minimum(gradient_top, gradient_bottom)
+    mask_clip = ImageClip(combined_gradient, ismask=True).set_duration(duration)
 
     # test code
-    #test_image = Image.fromarray(np.uint8(cm.gist_earth(gradient) * 255))
+    #test_image = Image.fromarray(np.uint8(cm.gist_earth(combined_gradient) * 255))
     #test_image.show()
-
+    #breakpoint()
     return mask_clip
 

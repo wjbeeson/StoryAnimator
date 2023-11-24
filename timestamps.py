@@ -18,7 +18,8 @@ def get_timestamps_from_narration(audio_file):
     conf = {
         "type": "transcription",
         "transcription_config": {
-            "language": "en"
+            "language": "en",
+            "operating_point": "enhanced"
         }
     }
     # Open the client using a context manager
