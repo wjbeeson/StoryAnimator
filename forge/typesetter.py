@@ -112,7 +112,7 @@ class Typesetter:
         self._fn_calc_word_size = fn_calc_word_size
 
         #
-        # text can contain formatting codes.  currently it's just \n - linefeed.   and
+        # text can contain fo   rmatting codes.  currently it's just \n - linefeed.   and
         # the code can appear more than once. to simplify processing, parse the text
         # into a list of word,code tuples e.g. [('end',None),('of',None),('sentence','\n\n\n')
         #
