@@ -16,6 +16,8 @@ import apollo_utils
 import apollo_config as config
 from ContentElementFacade import ContentElementFacade, combine_text_elements, create_content_element_groups
 
+from nw import nw, align, TimeStampNode
+
 #
 # 1. read the meme
 # 2. for each message, open the corresponding .mp3
@@ -137,7 +139,17 @@ def add_timestamps_to_meme( meme_filename ):
         if ce.type != dto.ContentType.PICTURE:
             # need the narration duration to extrapolate missing timestamps
             duration = AudioFileClip(filename).duration
-            timestamps = _align_timestamps(raw_timestamps,words, duration)
+
+            # still compute v1 timestamps for debugging purposes
+            timestamps_v1 = _align_timestamps(raw_timestamps,words, duration)
+
+            # align timestamps using NW algorithm
+            tokens, nodes = nw(
+                words,
+                [TimeStampNode(word,timestamp) for timestamp,word,_ in raw_timestamps]
+            )
+
+            timestamps = align(tokens, nodes)
 
             for i, content_num in enumerate(content_nums):
                 ce = ContentElementFacade(meme, panel_num, content_num)
