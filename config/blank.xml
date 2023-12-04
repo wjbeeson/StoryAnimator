@@ -1,0 +1,40 @@
+<Meme>
+	<Header>
+		<State>OCR</State>
+		<Speakers>
+			<Speaker Voice="Bella">
+				<TextProperties/>
+				<AvatarFilename/>
+			</Speaker>
+		</Speakers>
+	</Header>
+	<Panels>
+		<xmin>-1</xmin>
+		<ymin>-1</ymin>
+		<xmax>-1</xmax>
+		<ymax>-1</ymax>
+		<Content Speaker="1" Type="Caption">
+			<Caption OCR="false" Clean="NONE">
+				<xmin>-1</xmin>
+				<ymin>-1</ymin>
+				<xmax>-1</xmax>
+				<ymax>-1</ymax>
+				<Text>After a long day of work travel, I found myself unwinding in my Embassy Suites hotel room on the 5th floor. My evening was quite ordinary, involving some relaxation with a movie, a brief moment of self-pleasure, and enjoying a little bit of weed on my suite's balcony. By 11 pm, I was ready to sleep. </Text>
+				<speak></speak>
+				<Timestamps></Timestamps>
+			</Caption>
+
+		</Content>
+		<Content Speaker="1" Type="Caption">
+			<Caption OCR="false" Clean="NONE">
+				<xmin>-1</xmin>
+				<ymin>-1</ymin>
+				<xmax>-1</xmax>
+				<ymax>-1</ymax>
+				<Text>About half an hour later, as I teetered on the edge of sleep, a startling series of loud thwacks against the balcony door jolted me awake. My heart raced and my eyes widened in shock, realizing that someone was on my balcony – a baffling thought for a room so high up. I was almost in a trance, my mind blank, as I felt an inexplicable pull towards the door, like a moth drawn to light. With a mix of timidity and determination, I approached, my rational thinking suspended.  </Text>
+				<speak></speak>
+				<Timestamps></Timestamps>
+			</Caption>
+		</Content>
+	</Panels>
+</Meme>

@@ -1,8 +1,8 @@
 numpy~=1.26.2
-moviepy~=2.0.0.dev2
+moviepy~=1.0.3
 speechmatics-python
-Pillow~=10.0.1
-matplotlib~=3.7.4
+Pillow~=10.1.0
+matplotlib~=3.8.2
 pandas~=2.1.3
 gcloud~=0.18.3
 oauth2client~=4.1.3
@@ -13,3 +13,5 @@ pydub~=0.25.1
 httpx~=0.25.1
 gizeh~=0.1.11
 opencv-python~=4.8.1.78
+xmlschema~=2.5.0
+xsdata~=23.8

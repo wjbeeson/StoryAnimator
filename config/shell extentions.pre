@@ -1,0 +1,106 @@
+Windows Registry Editor Version 5.00
+
+[HKEY_CLASSES_ROOT\*\shell]
+
+[HKEY_CLASSES_ROOT\*\shell\Apollo(1) Quickforge]
+@="Quickforge"
+"Icon"="%APOLLO%\\tools\\apollo.ico"
+
+[HKEY_CLASSES_ROOT\*\shell\Apollo(1) Quickforge\command]
+@="\"%APOLLO%\\tools\\forge.bat\" \"%1\""
+
+[HKEY_CLASSES_ROOT\*\shell\Apollo(2) Quickforge]
+@="Quickforge (use cache)"
+"Icon"="%APOLLO%\\tools\\apollo.ico"
+
+[HKEY_CLASSES_ROOT\*\shell\Apollo(2) Quickforge\command]
+@="\"%APOLLO%\\tools\\forge.bat\" \"%1\" -use_cache"
+
+[HKEY_CLASSES_ROOT\*\shell\Apollo(3) Forge]
+@="Forge"
+"Icon"="%APOLLO%\\tools\\apollo.ico"
+
+[HKEY_CLASSES_ROOT\*\shell\Apollo(3) Forge\command]
+@="\"%APOLLO%\\tools\\forge.bat\" \"%1\" -production"
+
+[HKEY_CLASSES_ROOT\*\shell\Apollo(4) Labelimg]
+@="Labelimg"
+"Icon"="%APOLLO%\\tools\\apollo.ico"
+
+[HKEY_CLASSES_ROOT\*\shell\Apollo(4) Labelimg\command]
+@="\"%APOLLO%\\tools\\labelimg\\labelimg.exe\" \"%1\""
+
+[HKEY_CLASSES_ROOT\*\shell\Apollo(5) Memeify]
+@="Memeify"
+"Icon"="%APOLLO%\\tools\\apollo.ico"
+
+[HKEY_CLASSES_ROOT\*\shell\Apollo(5) Memeify\command]
+@="\"%APOLLO%\\tools\\memeify.bat\" \"%1\""
+
+[HKEY_CLASSES_ROOT\*\shell\Apollo(6) OCR]
+@="OCR"
+"Icon"="%APOLLO%\\tools\\apollo.ico"
+
+[HKEY_CLASSES_ROOT\*\shell\Apollo(6) OCR\command]
+@="\"%APOLLO%\\tools\\ocr.bat\" \"%1\""
+
+[HKEY_CLASSES_ROOT\*\shell\Apollo(7) TTS]
+@="TTS"
+"Icon"="%APOLLO%\\tools\\apollo.ico"
+
+[HKEY_CLASSES_ROOT\*\shell\Apollo(7) TTS\command]
+@="\"%APOLLO%\\tools\\tts.bat\" \"%1\"" -production
+
+[HKEY_CLASSES_ROOT\*\shell\Apollo(8) ASR]
+@="Timestamp"
+"Icon"="%APOLLO%\\tools\\apollo.ico"
+
+[HKEY_CLASSES_ROOT\*\shell\Apollo(8) ASR\command]
+@="\"%APOLLO%\\tools\\timestamp.bat\" \"%1\""
+
+
+;
+; folder commands
+;
+
+[HKEY_CLASSES_ROOT\Directory\shell\Apollo(1) convert raws]
+"Icon"="%APOLLO%\\tools\\apollo.ico"
+@="Convert raws to PNG"
+
+[HKEY_CLASSES_ROOT\Directory\shell\Apollo(1) convert raws\command]
+@="\"%APOLLO%\\src\\tools\\convert_images.bat\" \"%1\""
+
+[HKEY_CLASSES_ROOT\Directory\shell\Apollo(2) Pre-Forge]
+@="Pre-Forge"
+"Icon"="%APOLLO%\\tools\\apollo.ico"
+
+[HKEY_CLASSES_ROOT\Directory\shell\Apollo(2) Pre-Forge\command]
+@="%APOLLO%\\src\\tools\\batch\\preforge.bat %1"
+
+[HKEY_CLASSES_ROOT\Directory\shell\Apollo(3) Quickforge]
+"Icon"="%APOLLO%\\tools\\apollo.ico"
+@="Quickforge"
+
+[HKEY_CLASSES_ROOT\Directory\shell\Apollo(3) Quickforge\command]
+@="%APOLLO%\\src\\tools\\batch\\autoforge.bat %1"
+
+[HKEY_CLASSES_ROOT\Directory\shell\Apollo(4) Forge]
+"Icon"="%APOLLO%\\tools\\apollo.ico"
+@="Forge"
+
+[HKEY_CLASSES_ROOT\Directory\shell\Apollo(4) Forge\command]
+@="%APOLLO%\\src\\tools\\batch\\autoforge.bat %1 noclean -production"
+
+[HKEY_CLASSES_ROOT\Directory\shell\Apollo(5) Rename Raws]
+"Icon"="%APOLLO%\\tools\\apollo.ico"
+@="Rename Raws"
+
+[HKEY_CLASSES_ROOT\Directory\shell\Apollo(5) Rename Raws\command]
+@="%APOLLO%\\src\\tools\\rename_memes.bat \"%1\""
+
+[HKEY_CLASSES_ROOT\Directory\shell\Apollo(6) View Pipeline]
+"Icon"="%APOLLO%\\tools\\apollo.ico"
+@="View Pipeline"
+
+[HKEY_CLASSES_ROOT\Directory\shell\Apollo(6) View Pipeline\command]
+@="%APOLLO%\\src\\tools\\show_pipeline.bat \"%1\""
