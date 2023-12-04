@@ -1,21 +1,16 @@
-import os
+import logging as log
 import string
-import sys
-from os import path
+from string import punctuation
 
 import numpy as np
+import pandas as pd
 from google.cloud import speech
 from moviepy.editor import *
-import logging as log
-from string import punctuation
-import pandas as pd
 
-import dto
-import dto_utils
-import apollo_utils
 import apollo_config as config
-from ContentElementFacade import ContentElementFacade, combine_text_elements, create_content_element_groups
-
+import apollo_utils
+import dto
+from ContentElementFacade import ContentElementFacade, create_content_element_groups
 from nw import nw, align, TimeStampNode
 
 #
@@ -140,8 +135,8 @@ def add_timestamps_to_meme( meme_filename ):
             # need the narration duration to extrapolate missing timestamps
             duration = AudioFileClip(filename).duration
 
-            # still compute v1 timestamps for debugging purposes
-            timestamps_v1 = _align_timestamps(raw_timestamps,words, duration)
+            # may compute v1 timestamps for debugging purposes
+            # timestamps_v1 = _align_timestamps(raw_timestamps,words, duration)
 
             # align timestamps using NW algorithm
             tokens, nodes = nw(
