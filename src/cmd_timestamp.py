@@ -4,6 +4,8 @@ import logging as log
 from apollo_timestamp import timestamp
 import dto
 from apollo_log import init_log
+
+from transform_meme import transform_meme
 #
 # process command line args
 #
@@ -19,3 +21,4 @@ init_log(Path(args.meme_filename))
 log.info(f"Performing word timestamp detection on {args.meme_filename}")
 
 timestamp(args.meme_filename)
+transform_meme(args.meme_filename)

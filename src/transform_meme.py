@@ -57,4 +57,4 @@ def transform_meme( meme_filename ):
 
 
 
-transform_meme(r"C:\Users\fjbee\PycharmProjects\Raptor\test\test_script.meme")
+#transform_meme(r"C:\Users\fjbee\PycharmProjects\Raptor\test\test_script.meme")
