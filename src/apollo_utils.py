@@ -146,6 +146,9 @@ def count_word_tokens( token_list ):
 def count_words( text ):
     return count_word_tokens(get_tokens(text))
 
+
+
+
 #tokens = get_tokens("this is a test")
 #tokens = get_tokens("this is   a\n\ttest")
 #tokens = get_tokens("this is   a\n\ttest",False)

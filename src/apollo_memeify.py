@@ -20,7 +20,7 @@ def memeify( raw_filename, overwrite=False):
 
     with open( raw_filename, "r", encoding="utf-8") as f:
         # split into paragraphs, dropping repeated linefeeds e.g. \n\n \n\n\n etc
-        text = [para for para in f.read().split('\n') if para != '']
+        text = [para.replace('\n','') for para in f.read().split('\n\n') if para != '']
 
     # remove sample content
     meme.panels[0].content.clear()

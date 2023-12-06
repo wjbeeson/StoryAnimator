@@ -5,9 +5,11 @@ from speechmatics.models import ConnectionSettings
 from speechmatics.batch_client import BatchClient
 from word import Word
 
+import apollo_config as config
+
 
 def get_timestamps_from_narration(audio_file):
-    api_key = open("keys/speechmatics").read()
+    api_key = open(config.SPEECHMATICS_API_KEY_FILENAME).read()
 
     settings = ConnectionSettings(
         url="https://asr.api.speechmatics.com/v2",

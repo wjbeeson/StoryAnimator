@@ -13,6 +13,8 @@ import dto
 from ContentElementFacade import ContentElementFacade, create_content_element_groups
 from nw import nw, align, TimeStampNode
 
+import timestamps as speechmatics
+
 #
 # 1. read the meme
 # 2. for each message, open the corresponding .mp3
@@ -38,6 +40,8 @@ g_config = speech.RecognitionConfig(
 )
 
 def get_timestamps( filename ):
+    print(f"Processing {filename}")
+
     with open(filename, 'rb') as audio_file:
         content = audio_file.read()
         audio = speech.RecognitionAudio(content=content)
@@ -123,7 +127,14 @@ def add_timestamps_to_meme( meme_filename ):
     groups = create_content_element_groups(meme)
     for panel_num, line_num, content_nums in groups:
         filename = apollo_utils.get_narration_filename(meme_filename, panel_num, line_num)
-        raw_timestamps = get_timestamps(filename)
+
+        # todo: rewrite google cloud asr to use async dynamic batch to get lowest price
+        # raw_timestamps = get_timestamps(filename)
+
+        raw_timestamps = speechmatics.get_timestamps_from_narration(filename)
+
+        # use expected representation: list of (time,word,_) tuples
+        raw_timestamps = [(entry['start_time'], normalize_tokens( [entry['alternatives'][0]['content']] )[0], None) for entry in raw_timestamps]
 
         words = []
         timestamps = []
@@ -145,6 +156,10 @@ def add_timestamps_to_meme( meme_filename ):
             )
 
             timestamps = align(tokens, nodes)
+
+            # should be one timestamp for each word, not tokens (which was returned by nw)
+            # because there could be '-' insertions
+            assert len(timestamps)==len(words)
 
             for i, content_num in enumerate(content_nums):
                 ce = ContentElementFacade(meme, panel_num, content_num)
