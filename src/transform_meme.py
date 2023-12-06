@@ -75,4 +75,4 @@ def transform_meme( meme_filename ):
     final.write_audiofile(str((meme_path.parent / meme_path.stem).with_suffix(".wav")))
 
 
-transform_meme(r"C:\Users\fjbee\PycharmProjects\Raptor\test\lifes_work.meme")
+#transform_meme(r"C:\Users\fjbee\PycharmProjects\Raptor\test\lifes_work.meme")
