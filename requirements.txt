@@ -16,3 +16,5 @@ opencv-python~=4.8.1.78
 xmlschema~=2.5.0
 xsdata~=23.8
 elevenlabslib~=0.15.2
+google-cloud-speech
+google-cloud-texttospeech
