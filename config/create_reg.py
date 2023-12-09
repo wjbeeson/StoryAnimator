@@ -1,4 +1,4 @@
-import apollo_config as config
+import src.apollo_config as config
 
 # the windows registry doesn't expand environment variables in REG_SZ (string values).  REG_MULTI_SZ does,
 # but for some stupid reason the serialized representation is binary and thus very hard to work with.
