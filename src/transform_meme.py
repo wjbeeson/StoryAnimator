@@ -1,4 +1,6 @@
+import shutil
 import string
+import uuid
 
 import dto
 import dto_utils
@@ -14,9 +16,12 @@ from apollo_timestamp import normalize_tokens
 # javascript forge
 #
 def transform_meme(meme_filename):
+    remotion_dir = "C:/Users/wjbee/JSProjects/Remotion/public"
     meme_path = Path(meme_filename)
     meme = dto.Meme.read(meme_filename)
-
+    temp = meme_path.__str__().split("\\")
+    temp.pop()
+    meme_dir = "\\".join(temp)
     duration = 0.0
     timestamps = []
     tokens = []
@@ -110,19 +115,25 @@ def transform_meme(meme_filename):
                 block_starts_list.append(starting_span)
                 block_ends_list.append(i)
                 starting_span = i + 1
+            if i == len(tokens) - 1:
+                block_starts_list.append(starting_span)
+                block_ends_list.append(i)
 
         block_starts += (block_starts_list.__str__())
         block_ends += (block_ends_list.__str__())
 
-
-        f= open("C:\\Users\\wjbee\\JSProjects\\Remotion\\src\\types\\props.ts", 'w')
+        props_filename = f"_props{uuid.uuid4()}.ts"
+        f= open(f"{meme_dir}\\{props_filename}", 'w')
+        f2= open(f"{remotion_dir}/{props_filename}", 'w')
         parameters = [word_tokens, word_timestamps, block_starts, block_ends]
         for prop in parameters:
             f.write(f"{prop}\n\n\n")
-
-    breakpoint()
+            f2.write(f"{prop}\n\n\n")
+    narration_filename = f"_narration{uuid.uuid4()}"
     final = concatenate_audioclips(clips)
-    final.write_audiofile(str((meme_path.parent / meme_path.stem).with_suffix(".wav")))
+    final.write_audiofile(str((meme_path.parent / narration_filename).with_suffix(".wav")))
+    shutil.copyfile(str((meme_path.parent / narration_filename).with_suffix(".wav")), f"{remotion_dir}/{narration_filename}.wav")
 
 
-transform_meme(r"C:\Users\wjbee\Desktop\12.6.2023\12_6_2023.meme")
+transform_meme(r"C:\Users\wjbee\Desktop\Raptor\scripts\Part_1\Part_1.meme")
+

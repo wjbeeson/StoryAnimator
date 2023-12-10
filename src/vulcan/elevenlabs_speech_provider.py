@@ -25,5 +25,6 @@ class ElevenLabsSpeechProvider(ISpeechProvider ):
 
         # todo: 11 supports a few other parameters like stabiliy and similiarity.  we may wish to explore these
         # in the future
-        wav_data = voices[0].generate_audio_bytes(text)
+        wav_data = voices[0].generate_audio_bytes(text,
+                                                  model_id= "eleven_multilingual_v2")
         save_audio_bytes(wav_data, filename, "wav")
