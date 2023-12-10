@@ -1,0 +1,106 @@
+Windows Registry Editor Version 5.00
+
+[HKEY_CLASSES_ROOT\*\shell]
+
+[HKEY_CLASSES_ROOT\*\shell\Apollo(1) Quickforge]
+@="Quickforge"
+"Icon"="C:\\Users\\wjbee\\PycharmProjects\\Raptor\\tools\\apollo.ico"
+
+[HKEY_CLASSES_ROOT\*\shell\Apollo(1) Quickforge\command]
+@="\"C:\\Users\\wjbee\\PycharmProjects\\Raptor\\tools\\forge.bat\" \"%1\""
+
+[HKEY_CLASSES_ROOT\*\shell\Apollo(2) Quickforge]
+@="Quickforge (use cache)"
+"Icon"="C:\\Users\\wjbee\\PycharmProjects\\Raptor\\tools\\apollo.ico"
+
+[HKEY_CLASSES_ROOT\*\shell\Apollo(2) Quickforge\command]
+@="\"C:\\Users\\wjbee\\PycharmProjects\\Raptor\\tools\\forge.bat\" \"%1\" -use_cache"
+
+[HKEY_CLASSES_ROOT\*\shell\Apollo(3) Forge]
+@="Forge"
+"Icon"="C:\\Users\\wjbee\\PycharmProjects\\Raptor\\tools\\apollo.ico"
+
+[HKEY_CLASSES_ROOT\*\shell\Apollo(3) Forge\command]
+@="\"C:\\Users\\wjbee\\PycharmProjects\\Raptor\\tools\\forge.bat\" \"%1\" -production"
+
+[HKEY_CLASSES_ROOT\*\shell\Apollo(4) Labelimg]
+@="Labelimg"
+"Icon"="C:\\Users\\wjbee\\PycharmProjects\\Raptor\\tools\\apollo.ico"
+
+[HKEY_CLASSES_ROOT\*\shell\Apollo(4) Labelimg\command]
+@="\"C:\\Users\\wjbee\\PycharmProjects\\Raptor\\tools\\labelimg\\labelimg.exe\" \"%1\""
+
+[HKEY_CLASSES_ROOT\*\shell\Apollo(5) Memeify]
+@="Memeify"
+"Icon"="C:\\Users\\wjbee\\PycharmProjects\\Raptor\\tools\\apollo.ico"
+
+[HKEY_CLASSES_ROOT\*\shell\Apollo(5) Memeify\command]
+@="\"C:\\Users\\wjbee\\PycharmProjects\\Raptor\\tools\\memeify.bat\" \"%1\""
+
+[HKEY_CLASSES_ROOT\*\shell\Apollo(6) OCR]
+@="OCR"
+"Icon"="C:\\Users\\wjbee\\PycharmProjects\\Raptor\\tools\\apollo.ico"
+
+[HKEY_CLASSES_ROOT\*\shell\Apollo(6) OCR\command]
+@="\"C:\\Users\\wjbee\\PycharmProjects\\Raptor\\tools\\ocr.bat\" \"%1\""
+
+[HKEY_CLASSES_ROOT\*\shell\Apollo(7) TTS]
+@="TTS"
+"Icon"="C:\\Users\\wjbee\\PycharmProjects\\Raptor\\tools\\apollo.ico"
+
+[HKEY_CLASSES_ROOT\*\shell\Apollo(7) TTS\command]
+@="\"C:\\Users\\wjbee\\PycharmProjects\\Raptor\\tools\\tts.bat\" \"%1\"" -production
+
+[HKEY_CLASSES_ROOT\*\shell\Apollo(8) ASR]
+@="Timestamp"
+"Icon"="C:\\Users\\wjbee\\PycharmProjects\\Raptor\\tools\\apollo.ico"
+
+[HKEY_CLASSES_ROOT\*\shell\Apollo(8) ASR\command]
+@="\"C:\\Users\\wjbee\\PycharmProjects\\Raptor\\tools\\timestamp.bat\" \"%1\""
+
+
+;
+; folder commands
+;
+
+[HKEY_CLASSES_ROOT\Directory\shell\Apollo(1) convert raws]
+"Icon"="C:\\Users\\wjbee\\PycharmProjects\\Raptor\\tools\\apollo.ico"
+@="Convert raws to PNG"
+
+[HKEY_CLASSES_ROOT\Directory\shell\Apollo(1) convert raws\command]
+@="\"C:\\Users\\wjbee\\PycharmProjects\\Raptor\\src\\tools\\convert_images.bat\" \"%1\""
+
+[HKEY_CLASSES_ROOT\Directory\shell\Apollo(2) Pre-Forge]
+@="Pre-Forge"
+"Icon"="C:\\Users\\wjbee\\PycharmProjects\\Raptor\\tools\\apollo.ico"
+
+[HKEY_CLASSES_ROOT\Directory\shell\Apollo(2) Pre-Forge\command]
+@="C:\\Users\\wjbee\\PycharmProjects\\Raptor\\src\\tools\\batch\\preforge.bat %1"
+
+[HKEY_CLASSES_ROOT\Directory\shell\Apollo(3) Quickforge]
+"Icon"="C:\\Users\\wjbee\\PycharmProjects\\Raptor\\tools\\apollo.ico"
+@="Quickforge"
+
+[HKEY_CLASSES_ROOT\Directory\shell\Apollo(3) Quickforge\command]
+@="C:\\Users\\wjbee\\PycharmProjects\\Raptor\\src\\tools\\batch\\autoforge.bat %1"
+
+[HKEY_CLASSES_ROOT\Directory\shell\Apollo(4) Forge]
+"Icon"="C:\\Users\\wjbee\\PycharmProjects\\Raptor\\tools\\apollo.ico"
+@="Forge"
+
+[HKEY_CLASSES_ROOT\Directory\shell\Apollo(4) Forge\command]
+@="C:\\Users\\wjbee\\PycharmProjects\\Raptor\\src\\tools\\batch\\autoforge.bat %1 noclean -production"
+
+[HKEY_CLASSES_ROOT\Directory\shell\Apollo(5) Rename Raws]
+"Icon"="C:\\Users\\wjbee\\PycharmProjects\\Raptor\\tools\\apollo.ico"
+@="Rename Raws"
+
+[HKEY_CLASSES_ROOT\Directory\shell\Apollo(5) Rename Raws\command]
+@="C:\\Users\\wjbee\\PycharmProjects\\Raptor\\src\\tools\\rename_memes.bat \"%1\""
+
+[HKEY_CLASSES_ROOT\Directory\shell\Apollo(6) View Pipeline]
+"Icon"="C:\\Users\\wjbee\\PycharmProjects\\Raptor\\tools\\apollo.ico"
+@="View Pipeline"
+
+[HKEY_CLASSES_ROOT\Directory\shell\Apollo(6) View Pipeline\command]
+@="C:\\Users\\wjbee\\PycharmProjects\\Raptor\\src\\tools\\show_pipeline.bat \"%1\""
