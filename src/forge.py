@@ -76,7 +76,7 @@ def add_background(overlay_path, background_filename, output_path, chroma_key_he
             overlay_parent_node=greenscreen_overlay,
             x="(W-w)/2",
             y="(H-h)/2")
-        .trim(duration=duration)  # TODO: Replace with duration
+        .trim(duration=duration)
         # .output(final_video_path)
         # .run(overwrite_output=True)
     )
