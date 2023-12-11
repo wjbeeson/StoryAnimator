@@ -122,11 +122,6 @@ def transform_meme(meme_filename):
         for i in range(len(timestamps)):
             word_timestamps_list.append(timestamps[i])
         word_timestamps += (word_timestamps_list.__str__())
-        get_description(
-            meme_path=meme_path,
-            word_tokens=word_tokens,
-            word_timestamps=word_timestamps
-        )
         # calculate blocks
         character_count = 0
         starting_span = 0
@@ -156,13 +151,5 @@ def transform_meme(meme_filename):
             f.write(f"{prop}\n\n\n")
     final = concatenate_audioclips(clips)
     final.write_audiofile(str((meme_path.parent / meme_path.stem).with_suffix(".wav")))
-
-def get_description(meme_path, word_tokens, word_timestamps):
-    titles = []
-
-    with open(meme_path.with_suffix(".descr"), "w") as f:
-        for i, token in enumerate(word_tokens):
-            if token[0] == "^":
-                pass
 
 

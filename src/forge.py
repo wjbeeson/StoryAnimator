@@ -37,7 +37,7 @@ def forge_meme(meme_filename, remotion_output_dirname=r"C:\Users\wjbee\JSProject
 
     # Step 3: Call the remotion render function and pass the parameters
     os.chdir(str(remotion_output_dirpath.parent))
-    os.system(command)
+    #os.system(command)
 
     # Step 4: After done, use ffmpeg to greenscreen the background file on
     add_background(overlay_path=f"{remotion_output_dirname}\\{meme_filepath.stem}.mp4",
@@ -85,5 +85,3 @@ def add_background(overlay_path, background_filename, output_path, chroma_key_he
     input_audio = audio
 
     ffmpeg.concat(input_video, input_audio, v=1, a=1).output(output_path).run(overwrite_output=True)
-
-forge_meme(r"C:\Users\wjbee\Desktop\Raptor\scripts\Part_3\Part_3.meme")
