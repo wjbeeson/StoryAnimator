@@ -9,8 +9,24 @@ import numpy as np
 from moviepy.editor import *
 from apollo_utils import get_narration_filename, get_tokens
 from apollo_timestamp import normalize_tokens
+from time import strftime
+from time import gmtime
 
+class Description:
+    def __init__(self, meme_path, first_chapter_name):
+        self.meme_path = meme_path
+        self.word_tokens = [first_chapter_name]
+        self.word_timestamps = [0]
 
+    def add_word(self, word, timestamp):
+        self.word_tokens.append(word)
+        self.word_timestamps.append(timestamp)
+    def write(self):
+        with open(self.meme_path.with_suffix(".descr"), "w") as f:
+            for i in range(len(self.word_tokens)):
+
+                time = strftime("%M:%S", gmtime(self.word_timestamps[i]))
+                f.write(f"{time} {self.word_tokens[i]}\n")
 #
 # transform a timestamped meme + narrations to the input file format expected by William's
 # javascript forge
@@ -22,11 +38,24 @@ def transform_meme(meme_filename):
     timestamps = []
     tokens = []
     clips = []
+    description_obj = Description(meme_path, "The Story")
     for i, content in enumerate(meme.panels[0].content):
         caption_content = content.caption
+
         timestamps.extend(np.round(
             (np.array(caption_content.timestamps) + duration), 2).tolist())
-        t = get_tokens(caption_content.text.content[0])
+        text_content = caption_content.text.content[0]
+        if text_content[0] == "^":
+            chapter = ""
+            title_end = text_content.rfind("^")
+            if title_end == 0:
+                chapter = text_content[1:]
+            else:
+                chapter = text_content[1:title_end]
+
+            description_obj.add_word(chapter, caption_content.timestamps[0] + duration)
+
+        t = get_tokens(text_content)
 
         # append punctuation islands to preceding token e.g.
         #    This is a - Test
@@ -65,7 +94,7 @@ def transform_meme(meme_filename):
         clip = AudioFileClip(narration_filename)
         duration += clip.duration
         clips.append(clip)
-
+    description_obj.write()
     #
     # create forge input file in expected format
     #
@@ -93,7 +122,11 @@ def transform_meme(meme_filename):
         for i in range(len(timestamps)):
             word_timestamps_list.append(timestamps[i])
         word_timestamps += (word_timestamps_list.__str__())
-
+        get_description(
+            meme_path=meme_path,
+            word_tokens=word_tokens,
+            word_timestamps=word_timestamps
+        )
         # calculate blocks
         character_count = 0
         starting_span = 0
@@ -124,6 +157,12 @@ def transform_meme(meme_filename):
     final = concatenate_audioclips(clips)
     final.write_audiofile(str((meme_path.parent / meme_path.stem).with_suffix(".wav")))
 
+def get_description(meme_path, word_tokens, word_timestamps):
+    titles = []
 
-transform_meme(r"C:\Users\wjbee\Desktop\Raptor\scripts\Part_1\Part_1.meme")
+    with open(meme_path.with_suffix(".descr"), "w") as f:
+        for i, token in enumerate(word_tokens):
+            if token[0] == "^":
+                pass
+
 
