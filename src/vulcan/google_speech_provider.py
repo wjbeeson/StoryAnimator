@@ -6,7 +6,7 @@ class GoogleSpeechProvider(ISpeechProvider ):
     def __init__(self ):
         self._client = texttospeech.TextToSpeechClient()
 
-    def _say(self, filename, voice, input, rate):
+    def _say(self, filename, voice, input, rate, pitch):
         voice = texttospeech.VoiceSelectionParams(
             language_code="en-US",
             name=voice,
@@ -14,7 +14,8 @@ class GoogleSpeechProvider(ISpeechProvider ):
 
         audio_config = texttospeech.AudioConfig(
             audio_encoding=texttospeech.AudioEncoding.LINEAR16,
-            speaking_rate=rate
+            speaking_rate=rate,
+            pitch=pitch
         )
 
         response = self._client.synthesize_speech(
@@ -23,10 +24,10 @@ class GoogleSpeechProvider(ISpeechProvider ):
 
         with open(filename,'wb') as f:  f.write(response.audio_content)
 
-    def say_ssml(self, voice, ssml_text, filename, rate=1.0):
-        self._say(filename, voice, texttospeech.SynthesisInput(ssml=ssml_text), rate)
+    def say_ssml(self, voice, ssml_text, filename, rate=1.05, pitch=-7):
+        self._say(filename, voice, texttospeech.SynthesisInput(ssml=ssml_text), rate,pitch=-7)
 
-    def say(self, voice, text, filename, rate=1.0):
-        self._say(filename, voice, texttospeech.SynthesisInput(text=text),rate)
+    def say(self, voice, text, filename, rate=1.05):
+        self._say(filename, voice, texttospeech.SynthesisInput(text=text),rate,pitch=-7)
 
 

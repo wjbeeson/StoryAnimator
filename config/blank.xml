@@ -2,7 +2,7 @@
 	<Header>
 		<State>OCR</State>
 		<Speakers>
-			<Speaker Voice="Bella">
+			<Speaker Voice="Talon">
 				<TextProperties/>
 				<AvatarFilename/>
 			</Speaker>

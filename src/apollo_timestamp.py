@@ -125,13 +125,15 @@ def add_timestamps_to_meme( meme_filename ):
     meme = dto.Meme.read(meme_filename)
 
     groups = create_content_element_groups(meme)
+    raw_timestamps_list = []
     for panel_num, line_num, content_nums in groups:
         filename = apollo_utils.get_narration_filename(meme_filename, panel_num, line_num)
-
-        # todo: rewrite google cloud asr to use async dynamic batch to get lowest price
-        # raw_timestamps = get_timestamps(filename)
-
         raw_timestamps = speechmatics.get_timestamps_from_narration(filename)
+        raw_timestamps_list.append(raw_timestamps)
+
+
+    for panel_num, line_num, content_nums in groups:
+        filename = apollo_utils.get_narration_filename(meme_filename, panel_num, line_num)
 
         # use expected representation: list of (time,word,_) tuples
         raw_timestamps = [(entry['start_time'], normalize_tokens( [entry['alternatives'][0]['content']] )[0], None) for entry in raw_timestamps]

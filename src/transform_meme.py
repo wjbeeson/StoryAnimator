@@ -38,23 +38,12 @@ def transform_meme(meme_filename):
     timestamps = []
     tokens = []
     clips = []
-    description_obj = Description(meme_path, "The Story")
     for i, content in enumerate(meme.panels[0].content):
         caption_content = content.caption
 
         timestamps.extend(np.round(
             (np.array(caption_content.timestamps) + duration), 2).tolist())
         text_content = caption_content.text.content[0]
-        if text_content[0] == "^":
-            chapter = ""
-            title_end = text_content.rfind("^")
-            if title_end == 0:
-                chapter = text_content[1:]
-            else:
-                chapter = text_content[1:title_end]
-
-            description_obj.add_word(chapter, caption_content.timestamps[0] + duration)
-
         t = get_tokens(text_content)
 
         # append punctuation islands to preceding token e.g.
@@ -94,13 +83,34 @@ def transform_meme(meme_filename):
         clip = AudioFileClip(narration_filename)
         duration += clip.duration
         clips.append(clip)
+    chapter_start = 0
+    searching_for_end = False
+    chapter_words = []
+    description_obj = Description(meme_path, "The Story")
+    for i, token in enumerate(tokens):
+        if token.find("^") != -1 and token.find("^") != token.rfind("^"):
+            searching_for_end = False
+            chapter_words.append(token)
+            description_obj.add_word(" ".join(chapter_words).replace("^", ""), chapter_start)
+            chapter_words = []
+        elif token.find("^") != -1:
+            if searching_for_end:
+                searching_for_end = False
+                chapter_words.append(token)
+                description_obj.add_word(" ".join(chapter_words).replace("^",""), chapter_start)
+                chapter_words = []
+            else:
+                chapter_start = timestamps[i]
+                searching_for_end = True
+        if searching_for_end:
+            chapter_words.append(token)
     description_obj.write()
     #
     # create forge input file in expected format
     #
     parameters = []
     word_timestamps = ""
-    characters_per_line = 25
+    characters_per_line = 20
     variable_header = "export const"
     word_tokens = f"{variable_header} _words = "
     word_timestamps = f"{variable_header} _timestamps = "
@@ -151,5 +161,3 @@ def transform_meme(meme_filename):
             f.write(f"{prop}\n\n\n")
     final = concatenate_audioclips(clips)
     final.write_audiofile(str((meme_path.parent / meme_path.stem).with_suffix(".wav")))
-
-

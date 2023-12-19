@@ -28,6 +28,7 @@ g_production = {
     "Ian": (g_google, "en-US-Wavenet-I"),
     "Jacob": (g_google, "en-US-Neural2-J"),
     "Sarah": (g_google, "en-US-Studio-O"),
+    "Talon": (g_google, "en-US-News-N"),
     "TheChad": (g_google, "en-US-Studio-M"),
 
     "Adam": (g_eleven, "Adam"),

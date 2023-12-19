@@ -32,7 +32,7 @@ def memeify(raw_filename, overwrite=False):
             ocr=False,
             clean=dto.CleanMethod.NONE,
             text=para,
-            speak=dto.SpeakType(para[1:]) if para[0] == '^' else dto.SpeakType(para))
+            speak=dto.SpeakType(para.replace("^", "")))
         content = dto.PanelType.Content(caption=caption_content, type=dto.ContentType.CAPTION)
 
         meme.panels[0].content.append(content)

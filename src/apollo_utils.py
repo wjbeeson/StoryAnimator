@@ -124,13 +124,14 @@ def str_remove_any(s, chars_to_remove):
 WHITESPACE_CHARS = "\n\t "
 
 def get_tokens(text, discard_ws = True):
+    text = text.replace("’","'")
     """
     Parses text into a list of word tokens and whitespace tokens
     Returns
     -------
 
     """
-    punctuation = '?.,"!\-:;\'\(\)\/'
+    punctuation = '^″‶?.,"!\-:;\'’`\(\)\/'
     regex = f"[-+*•\w{punctuation}]+|[{WHITESPACE_CHARS}]+"
     return [ word for word in re.findall(regex, text) if not discard_ws or word[0] not in WHITESPACE_CHARS]
 
