@@ -2,13 +2,13 @@ import logging as log
 import os.path
 
 import re
-
+import json
 import dto
 import dto_utils
 import apollo_config as config
 from vulcan.elevenlabs_speech_provider import ElevenLabsSpeechProvider
 from vulcan.google_speech_provider import GoogleSpeechProvider
-from apollo_utils import get_narration_filename
+from pathlib import Path
 from ContentElementFacade import ContentElementFacade, create_content_element_groups, combine_text_elements
 
 g_google = GoogleSpeechProvider()
@@ -65,46 +65,25 @@ g_draft = {
 }
 
 
-def _lookup_provider(voice_name, speaker_num, production):
-    if production:
-        if voice_name in g_production:
-            return g_production[voice_name]
-        else:
-            # since there are new 11L voices being added to the library each day, make it easy to select
-            # new ones.  assume any unrecognized voice is 11L
-            return (g_eleven, voice_name )
+def _lookup_provider(voice_name):
+    if voice_name in g_production:
+        return g_production[voice_name]
     else:
-        return g_draft[f"Voice{speaker_num}"]
+        # since there are new 11L voices being added to the library each day, make it easy to select
+        # new ones.  assume any unrecognized voice is 11Labs
+        return (g_eleven, voice_name )
 
 
 
 def tts(meme_filename, production):
+    meme_filepath = Path(meme_filename)
     log.info(f"Performing TTS on {meme_filename}")
-    meme = dto_utils.dto_read(meme_filename)
-    # form groups of adjacent text bubbles for same speaker within a panel
-    groups = create_content_element_groups(meme)
+    meme = json.load(open(str(meme_filename)))
 
-
-    # create a line of narration for each group
     try:
-        for panel_num, line_num, content_nums in groups:
-
-            if len(content_nums) == 1:
-                text = ContentElementFacade(meme, panel_num, content_nums[0]).speech_text
-            else:
-                text = combine_text_elements(meme, panel_num, content_nums)
-
-            speaker_num = meme.panels[panel_num].content[content_nums[0]].speaker
-
-            # for content elements like picture that don't have a speaker. an empty
-            # narration file will be generated.  currently i use it as a placeholder
-            # to simplify processing
-
-            if not speaker_num:
-                speaker_num = 1
-
-            # <meme_filename>_<panel_num>_<narration_line_num>.wav
-            filename = get_narration_filename(meme_filename, panel_num, line_num)
+        for i in range(len(meme["dialogue"])):
+            dialogue = meme["dialogue"][str(i)]
+            filename = str(meme_filepath.parent) + "\\" + str(meme_filepath.stem) + f"_{i}.wav"
 
             # to save some money, don't overwrite existing narrations.  user must manually delete in order
             # to regenerate them
@@ -113,21 +92,18 @@ def tts(meme_filename, production):
                 continue
 
             provider, voice_id = _lookup_provider(
-                meme.header.speakers.speaker[speaker_num - 1].voice,
-                speaker_num,
-                production)
+                dialogue["speakerID"]
+            )
 
             # say the ssml text if specified, otherwise say the caption text.
             # note: this code will always write a narration .wav, even for blank text
-            if text.startswith("<speak>"):
-                provider.say_ssml(voice_id, text, filename, rate=config.TTS_SPEAKING_RATE)
-            else:
-                provider.say(voice_id, text, filename, rate=config.TTS_SPEAKING_RATE)
+            provider.say(voice_id, dialogue["speak"], filename)
 
-            line_num += 1
-
-        meme.header.state = dto.StateType.TTS
-        meme.write(meme_filename, force=True)
+        meme["state"] = "TTS"
+        with open(str(meme_filename), "w") as f:
+            f.write(json.dumps(meme))
 
     except Exception as x:
         log.exception("TTS failed")
+
+tts(r"C:\Users\wjbee\Desktop\Raptor\scripts\test.json", True)

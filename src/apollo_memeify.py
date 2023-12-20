@@ -118,7 +118,3 @@ def memeify(raw_filename, overwrite=False):
     f = open(str(Path(raw_filename).with_suffix(".json")), "w")
     f.write(json.dumps(meme))
     f.close()
-
-
-
-memeify(r"C:\Users\wjbee\Desktop\Raptor\scripts\test.txt", overwrite=True)

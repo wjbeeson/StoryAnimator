@@ -2,8 +2,8 @@ from vulcan.speech_provider import ISpeechProvider
 from google.cloud import texttospeech
 
 
-class GoogleSpeechProvider(ISpeechProvider ):
-    def __init__(self ):
+class GoogleSpeechProvider(ISpeechProvider):
+    def __init__(self):
         self._client = texttospeech.TextToSpeechClient()
 
     def _say(self, filename, voice, input, rate, pitch):
@@ -22,12 +22,8 @@ class GoogleSpeechProvider(ISpeechProvider ):
             input=input, voice=voice, audio_config=audio_config
         )
 
-        with open(filename,'wb') as f:  f.write(response.audio_content)
+        with open(filename, 'wb') as f:  f.write(response.audio_content)
 
-    def say_ssml(self, voice, ssml_text, filename, rate=1.05, pitch=-7):
-        self._say(filename, voice, texttospeech.SynthesisInput(ssml=ssml_text), rate,pitch=-7)
-
-    def say(self, voice, text, filename, rate=1.05):
-        self._say(filename, voice, texttospeech.SynthesisInput(text=text),rate,pitch=-7)
-
-
+    def say(self, voice, text, filename, rate=1.05, pitch=-7):
+        # TODO: Figure out wtf is going on
+        self._say(filename, voice, texttospeech.SynthesisInput(text=text), rate, pitch=-7)

@@ -27,12 +27,6 @@ def hex_to_rgb(hex):
 def rgb_to_hex(rgb):
     return '0x{0:02x}{1:02x}{2:02x}'.format(*rgb)
 
-def get_narration_filename( meme_filename, panel_index, narration_index ):
-    path = pathlib.Path(meme_filename)
-    narration_filename = path.parent / (path.stem + f"_{panel_index}_{narration_index}")
-    narration_filename = str(narration_filename.with_suffix(".wav"))
-    return narration_filename
-
 def bgr_int_to_rgb_hex(value):
   # check if the value is a valid int between 0 and 16777215
   if not isinstance(value, int) or value < 0 or value > 16777215:

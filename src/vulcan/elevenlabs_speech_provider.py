@@ -1,32 +1,29 @@
 import re
 
+import elevenlabs
+
 from vulcan.speech_provider import ISpeechProvider
-from elevenlabslib import *
+from elevenlabs import Voice, VoiceSettings, generate, set_api_key, save, voices
 from elevenlabslib.helpers import *
 
 
 class ElevenLabsSpeechProvider(ISpeechProvider ):
     def __init__(self, key_filename ):
         with open(key_filename,'r') as f: key=f.read()
-        self._user = ElevenLabsUser(key)
-
-    def say_ssml(self, voice, ssml, filename, rate=1.0):
-        # 11 doesn't support ssml yet.  but this might not actually be ssml - it also could be
-        # unformatted text that was placed in the speak element
-
-        text = ssml.replace("<speak>", "").replace("</speak>", "")
-
-        self.say( voice,text, filename, rate)
-    def say(self, voice, text, filename, rate=1.0):
-        voices = self._user.get_voices_by_name(voice)
-
-        # when this proves to no longer be the case, we shall require a different selection mechanism
-        assert len(voices)==1
-
-        # todo: 11 supports a few other parameters like stabiliy and similiarity.  we may wish to explore these
-        # in the future
-        wav_data = voices[0].generate_audio_bytes(text,
-                                                  model_id= "eleven_multilingual_v2",
-                                                  similarity_boost=0.25,
-                                                  stability=0.4,)
-        save_audio_bytes(wav_data, filename, "wav")
+        set_api_key(key)
+    def say(self, voice, text, filename, rate=1.0, pitch=0):
+        voice_id = ""
+        for voice_obj in voices():
+            if voice_obj.name == voice:
+                voice_id = voice_obj.voice_id
+                break
+        if voice_id == "":
+            raise Exception(f"Voice not found: {voice}")
+        audio = generate(
+            text=text,
+            voice=Voice(
+                voice_id=voice_id,
+                settings=VoiceSettings(stability=0.71, similarity_boost=0.5, style=0.0, use_speaker_boost=True)
+            )
+        )
+        save(audio, filename)
