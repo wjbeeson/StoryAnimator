@@ -1,0 +1,21 @@
+{
+  "narrationFilepath": "<string>",
+  "headings": {},
+  "captions": [],
+  "timestamps": [],
+  "emotions": {},
+  "dialogue": {
+    "0": {
+      "speakerID": "<string>",
+      "speak": [
+        "<string>"
+      ],
+      "captions": [
+        "<string>"
+      ],
+      "timestamps": [
+        "<string>"
+      ]
+    }
+  }
+}

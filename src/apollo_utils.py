@@ -123,6 +123,19 @@ def str_remove_any(s, chars_to_remove):
 
 WHITESPACE_CHARS = "\n\t "
 
+def split_keep_spaces(text):
+    def unwanted_chars(variable):
+        letters = [' ', '\n', '\t']
+        if (variable in letters and len(variable) == 1):
+            return False
+        else:
+            return True
+    split = re.split(r'(?<=[\ ])\s*', text)
+    remove_empty = list(filter(None, split))
+    remove_spaces = list(filter(unwanted_chars, remove_empty))
+    return remove_spaces
+
+
 def get_tokens(text, discard_ws = True):
     text = text.replace("’","'")
     """
