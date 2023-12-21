@@ -1,19 +1,14 @@
+import json
 import logging as log
 import os.path
-
-import re
-import json
-
-import ffmpeg
-
-import dto
-import dto_utils
-import apollo_config as config
-from vulcan.elevenlabs_speech_provider import ElevenLabsSpeechProvider
-from vulcan.google_speech_provider import GoogleSpeechProvider
+import time
 from pathlib import Path
+import ffmpeg
+import apollo_config as config
 import apollo_utils
-from ContentElementFacade import ContentElementFacade, create_content_element_groups, combine_text_elements
+
+from TTS.elevenlabs_speech_provider import ElevenLabsSpeechProvider
+from TTS.google_speech_provider import GoogleSpeechProvider
 
 g_google = GoogleSpeechProvider()
 g_eleven = ElevenLabsSpeechProvider(config.ELEVENLABS_API_KEY_FILENAME)
@@ -98,26 +93,30 @@ def tts(meme_filename):
 
             # say the ssml text if specified, otherwise say the caption text.
             # note: this code will always write a narration .wav, even for blank text
+            log.info(f"Performing TTS for: {filename}")
             provider.say(voice_id, dialogue["speak"], filename)
 
         audio_inputs = []
         for i in range(len(meme["dialogue"])):
             filename = apollo_utils.get_narration_filename(meme_filename, i)
             audio_inputs.append(ffmpeg.input(filename))
-        breakpoint()
         (
             ffmpeg
             .concat(*audio_inputs, v=0, a=1)
-            .output(str(Path(meme_filename).with_suffix(".wav")))
+            .output(str(Path(meme_filename).with_suffix(".wav")), loglevel="quiet")
             .run(overwrite_output=True)
         )
         meme["state"] = "TTS"
+        meme["narrationFilepath"] = str(Path(meme_filename).with_suffix(".wav"))
         with open(str(meme_filename), "w") as f:
             f.write(json.dumps(meme))
+        log.info(f"Narration successfully compiled")
+        time.sleep(3)
+
 
 
     except Exception as x:
         log.exception("TTS failed")
 
 
-tts(r"C:\Users\wjbee\Desktop\Raptor\scripts\test.json")
+#tts(r"C:\Users\wjbee\Desktop\Raptor\scripts\test.json")

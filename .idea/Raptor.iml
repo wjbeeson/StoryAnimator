@@ -6,8 +6,8 @@
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/dto" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/tools" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/vulcan" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/test" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/TTS" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/venv" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.11 (Raptor)" jdkType="Python SDK" />

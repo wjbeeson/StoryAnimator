@@ -20,4 +20,5 @@ args = parser.parse_args()
 # collect sequential blocks of dialog by speaker
 
 init_log(Path(args.meme_filename))
-tts(args.meme_filename, args.production)
+#tts(args.meme_filename, args.production)
+tts(args.meme_filename)

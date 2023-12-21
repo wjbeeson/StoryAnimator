@@ -1,9 +1,6 @@
 import shutil
 import string
 import uuid
-
-import dto
-import dto_utils
 from pathlib import Path
 import numpy as np
 from moviepy.editor import *
@@ -80,9 +77,6 @@ def transform_meme(meme_filename):
 
         narration_filename = get_narration_filename(meme_filename, 0, i)
 
-        clip = AudioFileClip(narration_filename)
-        duration += clip.duration
-        clips.append(clip)
     chapter_start = 0
     searching_for_end = False
     chapter_words = []
@@ -159,5 +153,3 @@ def transform_meme(meme_filename):
         parameters = [word_tokens, word_timestamps, block_starts, block_ends]
         for prop in parameters:
             f.write(f"{prop}\n\n\n")
-    final = concatenate_audioclips(clips)
-    final.write_audiofile(str((meme_path.parent / meme_path.stem).with_suffix(".wav")))

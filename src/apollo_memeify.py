@@ -115,6 +115,7 @@ def memeify(raw_filename, overwrite=False):
     meme["headings"] = headings
     meme["emotions"] = emotions
     meme["captions"] = captions
+    meme["state"] = "FORMATTED"
     f = open(str(Path(raw_filename).with_suffix(".json")), "w")
     f.write(json.dumps(meme))
     f.close()
