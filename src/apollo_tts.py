@@ -3,6 +3,9 @@ import os.path
 
 import re
 import json
+
+import ffmpeg
+
 import dto
 import dto_utils
 import apollo_config as config
@@ -61,7 +64,7 @@ g_draft = {
     "Voice10": (g_google, "en-US-Standard-B"),  # M
     "Voice11": (g_google, "en-US-Standard-E"),
     "Voice12": (g_google, "en-US-Standard-D"),  # M
-    "Voice13" : (g_google, "en-US-Standard-F")
+    "Voice13": (g_google, "en-US-Standard-F")
 
 }
 
@@ -72,15 +75,12 @@ def _lookup_provider(voice_name):
     else:
         # since there are new 11L voices being added to the library each day, make it easy to select
         # new ones.  assume any unrecognized voice is 11Labs
-        return (g_eleven, voice_name )
+        return (g_eleven, voice_name)
 
 
-
-def tts(meme_filename, production):
-
+def tts(meme_filename):
     log.info(f"Performing TTS on {meme_filename}")
     meme = json.load(open(str(meme_filename)))
-
     try:
         for i in range(len(meme["dialogue"])):
             dialogue = meme["dialogue"][str(i)]
@@ -100,9 +100,24 @@ def tts(meme_filename, production):
             # note: this code will always write a narration .wav, even for blank text
             provider.say(voice_id, dialogue["speak"], filename)
 
+        audio_inputs = []
+        for i in range(len(meme["dialogue"])):
+            filename = apollo_utils.get_narration_filename(meme_filename, i)
+            audio_inputs.append(ffmpeg.input(filename))
+        breakpoint()
+        (
+            ffmpeg
+            .concat(*audio_inputs, v=0, a=1)
+            .output(str(Path(meme_filename).with_suffix(".wav")))
+            .run(overwrite_output=True)
+        )
         meme["state"] = "TTS"
         with open(str(meme_filename), "w") as f:
             f.write(json.dumps(meme))
 
+
     except Exception as x:
         log.exception("TTS failed")
+
+
+tts(r"C:\Users\wjbee\Desktop\Raptor\scripts\test.json")

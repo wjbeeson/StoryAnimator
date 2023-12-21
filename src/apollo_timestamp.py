@@ -14,6 +14,7 @@ from ContentElementFacade import ContentElementFacade, create_content_element_gr
 from nw import nw, align, TimeStampNode
 import json
 import timestamps as speechmatics
+from pathlib import Path
 
 #
 # 1. read the meme
@@ -40,74 +41,6 @@ g_config = speech.RecognitionConfig(
 )
 
 
-def get_timestamps(filename):
-    print(f"Processing {filename}")
-
-    with open(filename, 'rb') as audio_file:
-        content = audio_file.read()
-        audio = speech.RecognitionAudio(content=content)
-
-    response = g_client.recognize(config=g_config, audio=audio)
-
-    timestamps = []
-    for result in response.results:
-        alternative = result.alternatives[0]
-
-        for word_info in alternative.words:
-            timestamps.append(
-                (word_info.start_time.total_seconds(),
-                 apollo_utils.str_remove_any(word_info.word.casefold(), punctuation),
-                 -1))  # correlated word index, TBD
-
-    return timestamps
-
-
-def _match_timestamps(asr_results, words):
-    last_match = 0
-    for i, (t, word, l) in enumerate(asr_results):
-        aligned = []
-        for n in range(last_match, min(last_match + 4, len(words))):
-            if word == words[n]:
-                asr_results[i] = (t, word, n)
-                last_match = n
-                break
-
-
-def _align_timestamps(asr_results, words, duration):
-    _match_timestamps(asr_results, words)
-
-    timestamps = [None] * len(words)
-    for t, word, index in asr_results:
-        if index != -1:
-            timestamps[index] = t
-
-    # fill gaps, 1st try
-    for i, t in enumerate(timestamps):
-        if t is None:
-            for l, (t2, word, index) in enumerate(asr_results):
-                if index == -1:
-                    asr_results[l] = (t2, word, i)
-                    timestamps[i] = t2
-                    break
-
-    # i'll be using pandas interpolate to fill gaps, which doesn't extrapolate the first
-    # missing value
-    if timestamps[0] is None:
-        timestamps[0] = 0
-
-    # it also doesn't extrapolate the last missing value, so add the duration adjusted by an
-    # avg word length estimate
-    timestamps.append(duration - .3)
-
-    timestamps = pd.Series(timestamps).interpolate().to_list()
-    timestamps = timestamps[:-1]  # removing trailing timestamp
-
-    assert None not in timestamps
-    assert np.NaN not in timestamps
-
-    return timestamps
-
-
 def normalize_tokens(tokens):
     normalized_tokens = []
 
@@ -121,33 +54,38 @@ def normalize_tokens(tokens):
 
 
 def add_timestamps_to_meme(meme_filename):
-    meme = json.load(open(meme_filename))
-
-    timestamps_list = []
-    dialogue = meme['dialogue']
-    total_duration = 0
+    meme = json.load(open(str(meme_filename)))
+    dialogue = meme["dialogue"]
+    finished_timestamps = {}
+    ongoing_jobs_ids = {}
+    raw_timestamps_list = {}
     for i in range(len(dialogue)):
         filename = apollo_utils.get_narration_filename(meme_filename, i)
-        duration = apollo_utils.probe_audio(filename)
-        existing_timestamps = False
         if "timestamps" in dialogue[str(i)]:
             if dialogue[str(i)]["timestamps"] is not None:
                 if len(dialogue[str(i)]["timestamps"]) > 0:
-                    existing_timestamps = True
-        if existing_timestamps:
+                    finished_timestamps[i] = dialogue[str(i)]["timestamps"]
+                    continue
+        job_id = speechmatics.submit_job(filename)
+        ongoing_jobs_ids[job_id] = i
+    for job_id in ongoing_jobs_ids:
+        raw_timestamps = speechmatics.await_completion(job_id)
+        raw_timestamps_list[ongoing_jobs_ids[job_id]] = raw_timestamps
+    timestamps_list = []
+    total_duration = 0
+    for i in range(len(dialogue)):
+        filename = apollo_utils.get_narration_filename(meme_filename, i)
+        if i in list(finished_timestamps.keys()):
             log.warning(
                 f'Skipping existing timestamps {dialogue[str(i)]["speak"][0:min(50, len(dialogue[str(i)]["speak"]))]}')
-            timestamps = dialogue[str(i)]["timestamps"]
-            timestamps_list.extend(timestamps)
+            timestamps_list.extend(finished_timestamps[i])
         else:
-            raw_timestamps = speechmatics.get_timestamps_from_narration(filename)
-
+            raw_timestamps = raw_timestamps_list[i]
             # use expected representation: list of (time,word,_) tuples
             raw_timestamps = [(entry['start_time'], normalize_tokens([entry['alternatives'][0]['content']])[0], None)
                               for entry in raw_timestamps]
 
-            words = []
-            words += normalize_tokens(apollo_utils.get_tokens(dialogue[str(i)]["speak"]))
+            words = normalize_tokens(apollo_utils.get_tokens(dialogue[str(i)]["speak"]))
 
             # align timestamps using NW algorithm
             tokens, nodes = nw(
@@ -166,8 +104,7 @@ def add_timestamps_to_meme(meme_filename):
             dialogue[str(i)]["timestamps"] = timestamps
             with open(str(meme_filename), "w") as f:
                 f.write(json.dumps(meme))
-
-        total_duration += duration
+        total_duration += apollo_utils.probe_audio(filename)
     meme["timestamps"] = timestamps_list
     return meme
 
