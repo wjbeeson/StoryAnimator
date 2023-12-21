@@ -47,8 +47,6 @@ def forge_meme(meme_filename, remotion_output_dirname=r"C:\Users\wjbee\JSProject
                    output_path=str(meme_filepath.with_suffix(".mp4")))
 
 
-
-
 def add_background(overlay_path, background_filename, output_path, chroma_key_hex="#0000FF"):
     music_file = r"C:\Users\wjbee\Desktop\Raptor\backgrounds\deep_sleep.mp3"
     duration = apollo_utils.probe_video(overlay_path)[0]
@@ -62,7 +60,7 @@ def add_background(overlay_path, background_filename, output_path, chroma_key_he
     video = (
         ffmpeg
         .overlay(
-            main_parent_node=ffmpeg.input(background_filename).filter(filter_name="loop",loop=-1, size=bg_frames),
+            main_parent_node=ffmpeg.input(background_filename).filter(filter_name="loop", loop=-1, size=bg_frames),
             overlay_parent_node=greenscreen_overlay,
             x="(W-w)/2",
             y="(H-h)/2")
@@ -72,7 +70,7 @@ def add_background(overlay_path, background_filename, output_path, chroma_key_he
     )
     audio = (ffmpeg
              .filter(
-        [ffmpeg.input(overlay_path).audio, ffmpeg.input(music_file).filter("volume", 0.25)],
+        [ffmpeg.input(overlay_path).audio, ffmpeg.input(music_file).filter("volume", 0.18)],
         'amix')
              .filter("atrim", duration=duration)
 
@@ -83,4 +81,4 @@ def add_background(overlay_path, background_filename, output_path, chroma_key_he
 
     ffmpeg.concat(input_video, input_audio, v=1, a=1).output(output_path).run(overwrite_output=True)
 
-#forge_meme(r"C:\Users\wjbee\Desktop\Raptor\scripts\test\test.json")
+# forge_meme(r"C:\Users\wjbee\Desktop\Raptor\scripts\test\test.json")
