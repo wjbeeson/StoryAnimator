@@ -12,7 +12,7 @@ import apollo_utils
 import dto
 from ContentElementFacade import ContentElementFacade, create_content_element_groups
 from nw import nw, align, TimeStampNode
-
+import json
 import timestamps as speechmatics
 
 #
@@ -36,10 +36,11 @@ g_config = speech.RecognitionConfig(
     enable_automatic_punctuation=True,
     enable_spoken_emojis=True,
     model=config.ASR_SPEECH_MODEL,
-    use_enhanced = config.ASR_USE_ENHANCED
+    use_enhanced=config.ASR_USE_ENHANCED
 )
 
-def get_timestamps( filename ):
+
+def get_timestamps(filename):
     print(f"Processing {filename}")
 
     with open(filename, 'rb') as audio_file:
@@ -55,26 +56,25 @@ def get_timestamps( filename ):
         for word_info in alternative.words:
             timestamps.append(
                 (word_info.start_time.total_seconds(),
-                 apollo_utils.str_remove_any( word_info.word.casefold(),punctuation),
+                 apollo_utils.str_remove_any(word_info.word.casefold(), punctuation),
                  -1))  # correlated word index, TBD
 
     return timestamps
 
-def _match_timestamps( asr_results, words ):
 
+def _match_timestamps(asr_results, words):
     last_match = 0
-    for i, (t,word,l) in enumerate(asr_results):
+    for i, (t, word, l) in enumerate(asr_results):
         aligned = []
-        for n in range(last_match,min(last_match+4,len(words))):
+        for n in range(last_match, min(last_match + 4, len(words))):
             if word == words[n]:
-                asr_results[i] = (t,word,n)
+                asr_results[i] = (t, word, n)
                 last_match = n
                 break
 
 
-def _align_timestamps( asr_results, words, duration ):
-    _match_timestamps( asr_results, words )
-
+def _align_timestamps(asr_results, words, duration):
+    _match_timestamps(asr_results, words)
 
     timestamps = [None] * len(words)
     for t, word, index in asr_results:
@@ -82,12 +82,12 @@ def _align_timestamps( asr_results, words, duration ):
             timestamps[index] = t
 
     # fill gaps, 1st try
-    for i,t in enumerate(timestamps):
+    for i, t in enumerate(timestamps):
         if t is None:
             for l, (t2, word, index) in enumerate(asr_results):
                 if index == -1:
-                    asr_results[l] = (t2,word,i)
-                    timestamps[i]=t2
+                    asr_results[l] = (t2, word, i)
+                    timestamps[i] = t2
                     break
 
     # i'll be using pandas interpolate to fill gaps, which doesn't extrapolate the first
@@ -100,89 +100,86 @@ def _align_timestamps( asr_results, words, duration ):
     timestamps.append(duration - .3)
 
     timestamps = pd.Series(timestamps).interpolate().to_list()
-    timestamps = timestamps[:-1] # removing trailing timestamp
+    timestamps = timestamps[:-1]  # removing trailing timestamp
 
     assert None not in timestamps
     assert np.NaN not in timestamps
 
     return timestamps
 
-def normalize_tokens( tokens ):
 
+def normalize_tokens(tokens):
     normalized_tokens = []
 
-    token : str
+    token: str
     for token in tokens:
-        token = apollo_utils.str_remove_any(token,string.punctuation)
+        token = apollo_utils.str_remove_any(token, string.punctuation)
         if token:
             normalized_tokens += [token.casefold()]
 
     return normalized_tokens
 
 
-def add_timestamps_to_meme( meme_filename ):
-    meme : dto.Meme
-    meme = dto.Meme.read(meme_filename)
+def add_timestamps_to_meme(meme_filename):
+    meme = json.load(open(meme_filename))
 
-    groups = create_content_element_groups(meme)
-    raw_timestamps_list = []
-    for panel_num, line_num, content_nums in groups:
-        filename = apollo_utils.get_narration_filename(meme_filename, panel_num, line_num)
-        raw_timestamps = speechmatics.get_timestamps_from_narration(filename)
-        raw_timestamps_list.append(raw_timestamps)
+    timestamps_list = []
+    dialogue = meme['dialogue']
+    total_duration = 0
+    for i in range(len(dialogue)):
+        filename = apollo_utils.get_narration_filename(meme_filename, i)
+        duration = apollo_utils.probe_audio(filename)
+        existing_timestamps = False
+        if "timestamps" in dialogue[str(i)]:
+            if dialogue[str(i)]["timestamps"] is not None:
+                if len(dialogue[str(i)]["timestamps"]) > 0:
+                    existing_timestamps = True
+        if existing_timestamps:
+            log.warning(
+                f'Skipping existing timestamps {dialogue[str(i)]["speak"][0:min(50, len(dialogue[str(i)]["speak"]))]}')
+            timestamps = dialogue[str(i)]["timestamps"]
+            timestamps_list.extend(timestamps)
+        else:
+            raw_timestamps = speechmatics.get_timestamps_from_narration(filename)
 
+            # use expected representation: list of (time,word,_) tuples
+            raw_timestamps = [(entry['start_time'], normalize_tokens([entry['alternatives'][0]['content']])[0], None)
+                              for entry in raw_timestamps]
 
-    for panel_num, line_num, content_nums in groups:
-        filename = apollo_utils.get_narration_filename(meme_filename, panel_num, line_num)
-
-        # use expected representation: list of (time,word,_) tuples
-        raw_timestamps = [(entry['start_time'], normalize_tokens( [entry['alternatives'][0]['content']] )[0], None) for entry in raw_timestamps]
-
-        words = []
-        timestamps = []
-        for i,content_num in enumerate(content_nums):
-            ce = ContentElementFacade(meme,panel_num,content_num)
-            words += normalize_tokens(apollo_utils.get_tokens(ce.text))
-
-        if ce.type != dto.ContentType.PICTURE:
-            # need the narration duration to extrapolate missing timestamps
-            duration = AudioFileClip(filename).duration
-
-            # may compute v1 timestamps for debugging purposes
-            # timestamps_v1 = _align_timestamps(raw_timestamps,words, duration)
+            words = []
+            words += normalize_tokens(apollo_utils.get_tokens(dialogue[str(i)]["speak"]))
 
             # align timestamps using NW algorithm
             tokens, nodes = nw(
                 words,
-                [TimeStampNode(word,timestamp) for timestamp,word,_ in raw_timestamps]
+                [TimeStampNode(word, ts) for ts, word, _ in raw_timestamps]
             )
 
             timestamps = align(tokens, nodes)
+            for j, ts in enumerate(timestamps):
+                timestamps[j] = round((ts + total_duration), 2)
 
+            timestamps_list.extend(timestamps)
             # should be one timestamp for each word, not tokens (which was returned by nw)
             # because there could be '-' insertions
-            assert len(timestamps)==len(words)
+            assert len(timestamps) == len(words)
+            dialogue[str(i)]["timestamps"] = timestamps
+            with open(str(meme_filename), "w") as f:
+                f.write(json.dumps(meme))
 
-            for i, content_num in enumerate(content_nums):
-                ce = ContentElementFacade(meme, panel_num, content_num)
-                word_count = len(normalize_tokens(apollo_utils.get_tokens(ce.text)))
-                ce.timestamps = timestamps[:word_count]
-                timestamps = timestamps[word_count:]
-
-                # if this content element is a member of group, set the duration to slightly
-                # less than the next timestamp. this will simplify later code
-                if i < len(content_nums) - 1 and timestamps:
-                    ce.duration = timestamps[0] - .001
-        else:
-            timestamps = []
-
+        total_duration += duration
+    meme["timestamps"] = timestamps_list
     return meme
 
 
-def timestamp( meme_filename ):
+def timestamp(meme_filename):
     try:
         meme = add_timestamps_to_meme(meme_filename)
-        meme.header.state = dto.StateType.TIMESTAMP
-        meme.write(meme_filename, True)
+        meme["state"] = "TIMESTAMPED"
+        with open(str(meme_filename), "w") as f:
+            f.write(json.dumps(meme))
     except Exception as x:
         log.exception("Word timestamp detection failed.")
+
+
+timestamp(r"C:\Users\wjbee\Desktop\Raptor\scripts\test.json")

@@ -5,6 +5,7 @@ from transform_meme import transform_meme
 import os
 import random
 import json
+import apollo_utils
 
 
 def forge_meme(meme_filename, remotion_output_dirname=r"C:\Users\wjbee\JSProjects\Remotion\out"):
@@ -48,28 +49,12 @@ def forge_meme(meme_filename, remotion_output_dirname=r"C:\Users\wjbee\JSProject
                    output_path=str(meme_filepath.with_suffix(".mp4")))
 
 
-def probe_video(video_path):
-    probe = ffmpeg.probe(video_path)
-    stream = next((stream for stream in probe['streams'] if stream['codec_type'] == 'video'), None)
-    if stream is None:
-        raise Exception(f"File: {video_path} is not a valid file, and is likely corrupted.")
-    duration = float(stream['duration'])
-
-    fps_raw = stream['avg_frame_rate']
-    fps_split = fps_raw.split("/")
-    fps = float(int(fps_split[0]) / int(fps_split[1]))
-
-    video_width = int(stream['width'])
-
-    video_height = int(stream['height'])
-
-    return (duration, fps, video_width, video_height)
 
 
 def add_background(overlay_path, background_filename, output_path, chroma_key_hex="#0000FF"):
     music_file = r"C:\Users\wjbee\Desktop\Raptor\backgrounds\deep_sleep.mp3"
-    duration = probe_video(overlay_path)[0]
-    (bg_duration, bg_fps) = probe_video(background_filename)[0:2]
+    duration = apollo_utils.probe_video(overlay_path)[0]
+    (bg_duration, bg_fps) = apollo_utils.probe_video(background_filename)[0:2]
     bg_frames = int(bg_duration * bg_fps)
     greenscreen_overlay = (
         ffmpeg.input(overlay_path)

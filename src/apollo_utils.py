@@ -7,6 +7,7 @@ import dto
 import dto_utils
 import numpy as np
 import re
+import ffmpeg
 # opencv-python
 import cv2
 import xml.etree.ElementTree as XmlElementTree
@@ -17,11 +18,15 @@ from string import punctuation
 import random
 
 from apollo_coloranalyser import ColorAnalyser
+from pathlib import Path
 
 
 def select_random_element(l):
     return l[random.randrange(0,len(l))]
-
+def get_narration_filename(meme_filename, index):
+    meme_filepath = Path(meme_filename)
+    filename = str(meme_filepath.parent) + "\\" + str(meme_filepath.stem) + f"_{index}.wav"
+    return filename
 def hex_to_rgb(hex):
   return tuple(int(hex.replace('#','')[i:i+2], 16) for i in (0, 2, 4))
 def rgb_to_hex(rgb):
@@ -171,6 +176,28 @@ def update_meme_state(meme_filename, state: dto.StateType):
     root = tree.getroot()
     root.find("Header/State").text = state.value
     tree.write(meme_filename)
+def probe_video(video_path):
+    probe = ffmpeg.probe(video_path)
+    stream = next((stream for stream in probe['streams'] if stream['codec_type'] == 'video'), None)
+    if stream is None:
+        raise Exception(f"File: {video_path} is not a valid file, and is likely corrupted.")
+    duration = float(stream['duration'])
 
+    fps_raw = stream['avg_frame_rate']
+    fps_split = fps_raw.split("/")
+    fps = float(int(fps_split[0]) / int(fps_split[1]))
+
+    video_width = int(stream['width'])
+
+    video_height = int(stream['height'])
+
+    return (duration, fps, video_width, video_height)
+
+
+def probe_audio(audio_file):
+    probe = ffmpeg.probe(audio_file)
+    stream = next((stream for stream in probe['streams'] if stream['codec_type'] == 'audio'), None)
+    duration = float(stream['duration'])
+    return (duration)
 
 pass

@@ -9,6 +9,7 @@ import apollo_config as config
 from vulcan.elevenlabs_speech_provider import ElevenLabsSpeechProvider
 from vulcan.google_speech_provider import GoogleSpeechProvider
 from pathlib import Path
+import apollo_utils
 from ContentElementFacade import ContentElementFacade, create_content_element_groups, combine_text_elements
 
 g_google = GoogleSpeechProvider()
@@ -76,14 +77,14 @@ def _lookup_provider(voice_name):
 
 
 def tts(meme_filename, production):
-    meme_filepath = Path(meme_filename)
+
     log.info(f"Performing TTS on {meme_filename}")
     meme = json.load(open(str(meme_filename)))
 
     try:
         for i in range(len(meme["dialogue"])):
             dialogue = meme["dialogue"][str(i)]
-            filename = str(meme_filepath.parent) + "\\" + str(meme_filepath.stem) + f"_{i}.wav"
+            filename = apollo_utils.get_narration_filename(meme_filename, i)
 
             # to save some money, don't overwrite existing narrations.  user must manually delete in order
             # to regenerate them
@@ -105,5 +106,3 @@ def tts(meme_filename, production):
 
     except Exception as x:
         log.exception("TTS failed")
-
-tts(r"C:\Users\wjbee\Desktop\Raptor\scripts\test.json", True)
