@@ -2,7 +2,6 @@ import configparser
 
 from pathlib import Path
 import os
-import logging
 
 APOLLO_PATH = Path(os.getenv("APOLLO"))
 if not APOLLO_PATH:

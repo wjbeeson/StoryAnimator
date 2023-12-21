@@ -68,7 +68,7 @@ def add_timestamps_to_meme(meme_filename):
     for i in range(len(dialogue)):
         filename = apollo_utils.get_narration_filename(meme_filename, i)
         if i in list(finished_timestamps.keys()):
-            log.warning(
+            log.info(
                 f'Skipping existing timestamps {dialogue[str(i)]["speak"][0:min(50, len(dialogue[str(i)]["speak"]))]}')
             timestamps_list.extend(finished_timestamps[i])
         else:
@@ -111,6 +111,56 @@ def timestamp(meme_filename):
         log.exception("Word timestamp detection failed.")
 
 
+def submit_job(audio_file):
+    api_key = open(config.SPEECHMATICS_API_KEY_FILENAME).read()
+
+    settings = ConnectionSettings(
+        url="https://asr.api.speechmatics.com/v2",
+        auth_token=api_key,
+    )
+
+    # Define transcription parameters
+    conf = {
+        "type": "transcription",
+        "transcription_config": {
+            "language": "en",
+            "operating_point": "enhanced"
+        }
+    }
+    # Open the client using a context manager
+    with BatchClient(settings) as client:
+        job_id = client.submit_job(
+            audio=audio_file,
+            transcription_config=conf,
+        )
+        log.info(f'job {job_id} submitted successfully, waiting for transcript')
+        return job_id
+
+
+def await_completion(job_id):
+    api_key = open(config.SPEECHMATICS_API_KEY_FILENAME).read()
+
+    settings = ConnectionSettings(
+        url="https://asr.api.speechmatics.com/v2",
+        auth_token=api_key,
+    )
+
+    # Open the client using a context manager
+    with BatchClient(settings) as client:
+        # Note that in production, you should set up notifications instead of polling.
+        # Notifications are described here: https://docs.speechmatics.com/features-other/notifications
+        log.info(f'waiting for {job_id}...')
+        transcript = client.wait_for_completion(job_id, transcription_format='json-v2')
+        # To see the full output, try setting transcription_format='json-v2'.
+        log.info(f'job {job_id} completed transcript successfully.')
+        results = []
+        for token in transcript['results']:
+            if token['type'] == 'punctuation':
+                continue
+            results.append(token)
+        return results
+
+
 def get_timestamps_from_narration(audio_file):
     api_key = open(config.SPEECHMATICS_API_KEY_FILENAME).read()
 
@@ -134,73 +184,16 @@ def get_timestamps_from_narration(audio_file):
             audio=audio_file,
             transcription_config=conf,
         )
-        print(f'job {job_id} submitted successfully, waiting for transcript')
+        log.info(f'job {job_id} submitted successfully, waiting for transcript')
 
         # Note that in production, you should set up notifications instead of polling.
         # Notifications are described here: https://docs.speechmatics.com/features-other/notifications
         transcript = client.wait_for_completion(job_id, transcription_format='json-v2')
         # To see the full output, try setting transcription_format='json-v2'.
-        print(transcript['results'])
+        log.info(transcript['results'])
         results = []
         for token in transcript['results']:
             if token['type'] == 'punctuation':
                 continue
             results.append(token)
         return results
-
-
-def submit_job(audio_file):
-    api_key = open(config.SPEECHMATICS_API_KEY_FILENAME).read()
-
-    settings = ConnectionSettings(
-        url="https://asr.api.speechmatics.com/v2",
-        auth_token=api_key,
-    )
-
-    # Define transcription parameters
-    conf = {
-        "type": "transcription",
-        "transcription_config": {
-            "language": "en",
-            "operating_point": "enhanced"
-        }
-    }
-    # Open the client using a context manager
-    with BatchClient(settings) as client:
-        job_id = client.submit_job(
-            audio=audio_file,
-            transcription_config=conf,
-        )
-        print(f'job {job_id} submitted successfully, waiting for transcript')
-        return job_id
-
-
-def await_completion(job_id):
-    api_key = open(config.SPEECHMATICS_API_KEY_FILENAME).read()
-
-    settings = ConnectionSettings(
-        url="https://asr.api.speechmatics.com/v2",
-        auth_token=api_key,
-    )
-
-    # Open the client using a context manager
-    with BatchClient(settings) as client:
-        # Note that in production, you should set up notifications instead of polling.
-        # Notifications are described here: https://docs.speechmatics.com/features-other/notifications
-        print(f'waiting for {job_id}...')
-        transcript = client.wait_for_completion(job_id, transcription_format='json-v2')
-        # To see the full output, try setting transcription_format='json-v2'.
-        print(f'job {job_id} completed transcript successfully.')
-        results = []
-        for token in transcript['results']:
-            if token['type'] == 'punctuation':
-                continue
-            results.append(token)
-        return results
-
-
-def check_if_match(detected_index, actual_index, detected_words, actual_words):
-    # checking to make sure it's not the last word
-    if detected_index >= len(detected_words) or actual_index >= len(actual_words):
-        return True
-    return detected_words[detected_index] == actual_words[actual_index]

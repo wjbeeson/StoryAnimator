@@ -84,7 +84,7 @@ def tts(meme_filename):
             # to save some money, don't overwrite existing narrations.  user must manually delete in order
             # to regenerate them
             if os.path.exists(filename):
-                log.warning(f"Skipping existing narration file {filename}")
+                log.info(f"Skipping existing narration file {filename}")
                 continue
 
             provider, voice_id = _lookup_provider(

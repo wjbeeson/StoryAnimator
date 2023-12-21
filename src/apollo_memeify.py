@@ -2,7 +2,7 @@ import string
 
 from apollo_utils import split_keep_spaces
 import apollo_config as config
-
+import logging as log
 from pathlib import Path
 import json
 import re
@@ -71,6 +71,7 @@ def memeify(raw_filename, overwrite=False):
     #
     # create meme and header
     #
+    log.info(f"Memeifying {raw_filename}")
     meme = json.load(open(str(config.APOLLO_PATH / "config/blank.json")))
     default_speaker_id = "Talon"
     #

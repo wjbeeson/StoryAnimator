@@ -1,6 +1,7 @@
 import logging as log
 import apollo_config as config
 import sys
+from pathlib import Path
 
 class FfmpegFilter(log.Filter):
     def filter(self, record):
@@ -20,3 +21,4 @@ def init_log (meme_path):
             log.StreamHandler(sys.stdout)
         ]
     )
+init_log(Path(r"C:\Users\wjbee\Desktop\Raptor\scripts\test\test.txt"))

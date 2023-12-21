@@ -59,7 +59,7 @@ while True:
                 timestamp(str(stem.with_suffix(".json")))
 
             case "TIMESTAMPED":
-                #forge_meme(str(stem.with_suffix(".json")))
+                forge_meme(str(stem.with_suffix(".json")))
                 break
                 # all done!
 
