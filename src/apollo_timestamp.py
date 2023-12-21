@@ -7,6 +7,7 @@ from speechmatics.models import ConnectionSettings
 import apollo_config as config
 import apollo_utils
 from dna_align import dna_align, align, TimeStampNode
+from calculate_metadata import add_description, calculate_blocks
 
 #
 # 1. read the meme
@@ -100,10 +101,15 @@ def add_timestamps_to_meme(meme_filename):
     meme["timestamps"] = timestamps_list
     return meme
 
-
 def timestamp(meme_filename):
     try:
         meme = add_timestamps_to_meme(meme_filename)
+        with open(str(meme_filename), "w") as f:
+            f.write(json.dumps(meme))
+
+        add_description(meme_filename)
+
+        meme = calculate_blocks(meme_filename)
         meme["state"] = "TIMESTAMPED"
         with open(str(meme_filename), "w") as f:
             f.write(json.dumps(meme))

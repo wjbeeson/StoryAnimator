@@ -107,7 +107,8 @@ def tts(meme_filename):
             .run(overwrite_output=True)
         )
         meme["state"] = "TTS"
-        meme["narrationFilepath"] = str(Path(meme_filename).with_suffix(".wav"))
+        meme["narrationFilename"] = str(Path(meme_filename).with_suffix(".wav").name)
+        meme["duration"] = apollo_utils.probe_audio(str(Path(meme_filename).with_suffix(".wav"))) + 2
         with open(str(meme_filename), "w") as f:
             f.write(json.dumps(meme))
         log.info(f"Narration successfully compiled")

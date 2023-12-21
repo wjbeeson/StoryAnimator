@@ -1,6 +1,6 @@
 {
   "state": "FORMATTED",
-  "narrationFilepath": "<string>",
+  "narrationFilename": "<string>",
   "headings": {},
   "captions": [],
   "timestamps": [],
@@ -18,5 +18,7 @@
         "<string>"
       ]
     }
-  }
+  },
+  "blockStarts": [],
+  "blockEnds": []
 }

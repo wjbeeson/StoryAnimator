@@ -1,7 +1,7 @@
 import shutil
 from pathlib import Path
 import ffmpeg
-from transform_meme import transform_meme
+from calculate_metadata import add_description
 import os
 import random
 import json
@@ -12,8 +12,7 @@ def forge_meme(meme_filename, remotion_output_dirname=r"C:\Users\wjbee\JSProject
     file_choice = random.choice(os.listdir(r"C:\Users\wjbee\Desktop\Raptor\backgrounds\Looping"))
 
     # Step 0: Get all the necessary files to render
-    background_filename = f"C:\\Users\\wjbee\\Desktop\\Raptor\\backgrounds\\{file_choice}"
-    transform_meme(meme_filename)
+    background_filename = f"C:\\Users\\wjbee\\Desktop\\Raptor\\backgrounds\\looping\\{file_choice}"
 
     # Step 1: Copy all required files over to remotion directory
     meme_filepath = Path(meme_filename)
@@ -21,23 +20,22 @@ def forge_meme(meme_filename, remotion_output_dirname=r"C:\Users\wjbee\JSProject
     remotion_public_dirname = str(remotion_output_dirpath.parent) + "\\public\\"
 
     narration = str(meme_filepath.with_suffix(".wav"))
-    props = str(meme_filepath.with_suffix(".ts"))
     remotion_narration_filename = (remotion_public_dirname + str(Path(narration).name)).replace("\\", "/")
-    remotion_props_filename = (remotion_public_dirname + str(Path(props).name)).replace("\\", "/")
     shutil.copy(narration, remotion_narration_filename)
-    shutil.copy(props, remotion_props_filename)
+
+    remotion_props_filename = (remotion_public_dirname + str(Path(meme_filename).name)).replace("\\", "/")
+    shutil.copy(meme_filename, remotion_props_filename)
 
     # Step 2: Compile parameters for calling remotion render
     narration_local_path = str(Path(remotion_narration_filename).name)
-    props_local_path = str(Path(remotion_props_filename).stem)
+    props_local_path = str(Path(remotion_props_filename).name)
     json_obj = {}
-    json_obj["narrationFilename"] = narration_local_path
     json_obj["propsFilename"] = props_local_path
     json_txt = json.dumps(json_obj)
-    json_filename = str(meme_filepath.with_suffix(".json"))
+    json_filename = str(meme_filepath.parent) + "\\" + (meme_filepath.stem + "_props.json")
     with open(json_filename, "w") as outfile:
         outfile.write(json_txt)
-    command = f"npx remotion render VideoComp out/{meme_filepath.stem}.mp4 --props={str(meme_filepath.with_suffix('.json'))}"
+    command = f"npx remotion render VideoComp out/{meme_filepath.stem}.mp4 --props={json_filename}"
 
     # Step 3: Call the remotion render function and pass the parameters
     os.chdir(str(remotion_output_dirpath.parent))
@@ -84,3 +82,5 @@ def add_background(overlay_path, background_filename, output_path, chroma_key_he
     input_audio = audio
 
     ffmpeg.concat(input_video, input_audio, v=1, a=1).output(output_path).run(overwrite_output=True)
+
+#forge_meme(r"C:\Users\wjbee\Desktop\Raptor\scripts\test\test.json")

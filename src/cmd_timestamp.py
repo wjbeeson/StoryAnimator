@@ -2,7 +2,6 @@ from pathlib import Path
 import logging as log
 
 from apollo_timestamp import timestamp
-import dto
 from apollo_log import init_log
 #
 # process command line args
