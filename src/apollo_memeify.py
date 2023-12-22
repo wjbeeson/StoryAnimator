@@ -1,11 +1,16 @@
 import string
 
+from cssutils import CSSParser
+
 from apollo_utils import split_keep_spaces
 import apollo_config as config
 import logging as log
 from pathlib import Path
 import json
 import re
+import cssutils
+from pprint import pprint
+
 # number of speaker elements to create
 SPEAKER_COUNT = 4
 
@@ -66,6 +71,37 @@ def find_tags(para, word_count, default_speaker_id="Talon", default_emotion="neu
     para_removed_tags = para
     return para_removed_tags, word_count, speaker, word_pos_emotions, word_pos_headings
 
+class Styleparser():
+    def __init__(self, css_filepath = r"C:\Users\wjbee\PycharmProjects\Raptor\assets\styles.css"):
+
+        ids = []
+        parser_css = CSSParser(loglevel=log.CRITICAL)
+        css_rules = parser_css.parseFile(css_filepath,).cssRules
+        for rule in css_rules:
+            ids.append(rule.selectorText.replace("#", ""))
+
+        self.custom_ids = {}
+        self.generic_ids = []
+        self.generic_ids_copy = []
+        for id in ids:
+            if id.find("speaker") != -1:
+                self.generic_ids.append(id.lower())
+            else:
+                self.custom_ids[id.lower()] = id.lower()
+        self.generic_ids_copy = self.generic_ids.copy()
+
+    def get_style_id(self, speaker_id):
+        speaker_id = speaker_id.lower()
+        if speaker_id in self.custom_ids:
+            return self.custom_ids[speaker_id]
+        else:
+            if len(self.generic_ids_copy) == 0:
+                self.generic_ids_copy = self.generic_ids.copy()
+            new_id = self.generic_ids_copy.pop(0)
+            self.custom_ids[speaker_id] = new_id
+            return new_id
+
+
 
 def memeify(raw_filename, overwrite=False):
     #
@@ -93,6 +129,7 @@ def memeify(raw_filename, overwrite=False):
     captions = []
     headings = {}
     speaker_id = default_speaker_id
+    styleparser = Styleparser()
     for i, para in enumerate(text):
         (
             para_removed_tags,
@@ -111,12 +148,25 @@ def memeify(raw_filename, overwrite=False):
 
         dialogue = {}
         dialogue["speakerID"] = speaker_id
+        dialogue["styleID"] = styleparser.get_style_id(speaker_id)
         dialogue["speak"] = para_removed_tags
         meme["dialogue"][str(i)] = dialogue
     meme["headings"] = headings
     meme["emotions"] = emotions
     meme["captions"] = captions
     meme["state"] = "FORMATTED"
+
+    styles = []
+    for i in range(len(meme["dialogue"])):
+        dialogue = meme["dialogue"][str(i)]
+        style_id = dialogue["styleID"]
+        word_count = len(split_keep_spaces(dialogue["speak"]))
+        for j in range(word_count):
+            styles.append(style_id)
+    meme["styleIDs"] = styles
     f = open(str(Path(raw_filename).with_suffix(".json")), "w")
     f.write(json.dumps(meme))
     f.close()
+
+memeify(r"C:\Users\wjbee\Desktop\Raptor\scripts\test\test.txt")
+

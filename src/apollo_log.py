@@ -1,12 +1,15 @@
+import logging
 import logging as log
 import apollo_config as config
 import sys
 from pathlib import Path
 
+
 class FfmpegFilter(log.Filter):
     def filter(self, record):
         # Return False if the record's name starts with 'requests'
         return "ffmpeg" not in record.msg
+
 
 def init_log (meme_path):
 
@@ -19,6 +22,7 @@ def init_log (meme_path):
         handlers = [
             handler,
             log.StreamHandler(sys.stdout)
-        ]
+        ],
+        force=True
     )
-init_log(Path(r"C:\Users\wjbee\Desktop\Raptor\scripts\test\test.txt"))
+
