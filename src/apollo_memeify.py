@@ -14,32 +14,39 @@ from pprint import pprint
 # number of speaker elements to create
 SPEAKER_COUNT = 4
 
-def get_tag_contents(tag):
+def get_tag_type(tag):
     tag = tag.replace("<", "").replace(">", "")
     tag_split = tag.split("=")
     tag_type = tag_split[0].translate(str.maketrans('', '', string.punctuation)).strip()
-    tag_value = tag_split[1].translate(str.maketrans('', '', string.punctuation)).strip()
-    return (tag_type, tag_value)
-
+    raw_tag_value = tag_split[1].strip()
+    return (tag_type, raw_tag_value)
 
 def find_tags(para, word_count, default_speaker_id="Talon", default_emotion="neutral"):
     speaker = default_speaker_id
     char_pos_emotions = {0: default_emotion}
     char_pos_headings = {}
+    variable_map = {}
     loop = True
     while loop:
         if para.find("<") != -1 and para.find(">") != -1:
             start = para.find("<")
             end = para.find(">")
             tag = para[start + 1:end]
-            (tag_type, tag_value) = get_tag_contents(tag)
+            (tag_type, raw_tag_value) = get_tag_type(tag)
             match tag_type:
-                case "speaker":
-                    speaker = tag_value
-                case "emotion":
-                    char_pos_emotions[start] = tag_value
-                case "heading":
-                    char_pos_headings[start] = tag_value
+                case "s" | "speaker":
+                    speaker = raw_tag_value.translate(str.maketrans('', '', string.punctuation)).replace(" ", "").lower()
+                    if speaker in variable_map:
+                        speaker = variable_map[speaker]
+                case "def" | "speaker_def":
+                    split = raw_tag_value.replace(" ","").split(",")
+                    for vm in split:
+                        map_split = vm.split(":")
+                        variable_map[map_split[0].lower()] = map_split[1].translate(str.maketrans('', '', string.punctuation)).lower()
+                case "e" | "emotion":
+                    char_pos_emotions[start] = raw_tag_value.translate(str.maketrans('', '', string.punctuation)).replace(" ", "").lower()
+                case "h" | "heading":
+                    char_pos_headings[start] = raw_tag_value
                 case _:
                     raise Exception(f"Unknown tag type {tag_type}")
             para = para[:start] + para[end + 1:]
@@ -72,7 +79,7 @@ def find_tags(para, word_count, default_speaker_id="Talon", default_emotion="neu
     return para_removed_tags, word_count, speaker, word_pos_emotions, word_pos_headings
 
 class Styleparser():
-    def __init__(self, css_filepath = r"C:\Users\wjbee\PycharmProjects\Raptor\assets\styles.css"):
+    def __init__(self, css_filepath = r"C:\Users\wjbee\JSProjects\Remotion\src\styles.css"):
 
         ids = []
         parser_css = CSSParser(loglevel=log.CRITICAL)
@@ -169,4 +176,3 @@ def memeify(raw_filename, overwrite=False):
     f.close()
 
 memeify(r"C:\Users\wjbee\Desktop\Raptor\scripts\test\test.txt")
-
