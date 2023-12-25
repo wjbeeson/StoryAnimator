@@ -8,11 +8,7 @@ import logging as log
 from pathlib import Path
 import json
 import re
-import cssutils
-from pprint import pprint
 
-# number of speaker elements to create
-SPEAKER_COUNT = 4
 
 def get_tag_type(tag):
     tag = tag.replace("<", "").replace(">", "")
@@ -21,11 +17,14 @@ def get_tag_type(tag):
     raw_tag_value = tag_split[1].strip()
     return (tag_type, raw_tag_value)
 
+
+variable_map = {}
+
+
 def find_tags(para, word_count, default_speaker_id="Talon", default_emotion="neutral"):
     speaker = default_speaker_id
     char_pos_emotions = {0: default_emotion}
     char_pos_headings = {}
-    variable_map = {}
     loop = True
     while loop:
         if para.find("<") != -1 and para.find(">") != -1:
@@ -35,16 +34,19 @@ def find_tags(para, word_count, default_speaker_id="Talon", default_emotion="neu
             (tag_type, raw_tag_value) = get_tag_type(tag)
             match tag_type:
                 case "s" | "speaker":
-                    speaker = raw_tag_value.translate(str.maketrans('', '', string.punctuation)).replace(" ", "").lower()
+                    speaker = raw_tag_value.translate(str.maketrans('', '', string.punctuation)).replace(" ",
+                                                                                                         "").lower()
                     if speaker in variable_map:
                         speaker = variable_map[speaker]
                 case "def" | "speaker_def":
-                    split = raw_tag_value.replace(" ","").split(",")
+                    split = raw_tag_value.replace(" ", "").split(",")
                     for vm in split:
                         map_split = vm.split(":")
-                        variable_map[map_split[0].lower()] = map_split[1].translate(str.maketrans('', '', string.punctuation)).lower()
+                        variable_map[map_split[0].lower()] = map_split[1].translate(
+                            str.maketrans('', '', string.punctuation)).title()
                 case "e" | "emotion":
-                    char_pos_emotions[start] = raw_tag_value.translate(str.maketrans('', '', string.punctuation)).replace(" ", "").lower()
+                    char_pos_emotions[start] = raw_tag_value.translate(
+                        str.maketrans('', '', string.punctuation)).replace(" ", "").lower()
                 case "h" | "heading":
                     char_pos_headings[start] = raw_tag_value
                 case _:
@@ -78,12 +80,13 @@ def find_tags(para, word_count, default_speaker_id="Talon", default_emotion="neu
     para_removed_tags = para
     return para_removed_tags, word_count, speaker, word_pos_emotions, word_pos_headings
 
+
 class Styleparser():
-    def __init__(self, css_filepath = r"C:\Users\wjbee\JSProjects\Remotion\src\styles.css"):
+    def __init__(self, css_filepath=r"C:\Users\wjbee\JSProjects\Remotion\src\styles.css"):
 
         ids = []
         parser_css = CSSParser(loglevel=log.CRITICAL)
-        css_rules = parser_css.parseFile(css_filepath,).cssRules
+        css_rules = parser_css.parseFile(css_filepath, ).cssRules
         for rule in css_rules:
             ids.append(rule.selectorText.replace("#", ""))
 
@@ -107,7 +110,6 @@ class Styleparser():
             new_id = self.generic_ids_copy.pop(0)
             self.custom_ids[speaker_id] = new_id
             return new_id
-
 
 
 def memeify(raw_filename, overwrite=False):
@@ -175,4 +177,5 @@ def memeify(raw_filename, overwrite=False):
     f.write(json.dumps(meme))
     f.close()
 
-memeify(r"C:\Users\wjbee\Desktop\Raptor\scripts\test\test.txt")
+
+#memeify(r"C:\Users\wjbee\Desktop\Raptor\scripts\test\test.txt")

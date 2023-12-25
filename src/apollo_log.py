@@ -22,7 +22,6 @@ def init_log (meme_path):
         handlers = [
             handler,
             log.StreamHandler(sys.stdout)
-        ],
-        force=True
+        ]
     )
 

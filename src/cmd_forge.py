@@ -1,4 +1,5 @@
 # this script can be run on a raw, a voc xml, or a .meme, and it will perform the next required step in the apollo pipeline
+import time
 from pathlib import Path
 import argparse
 import os
@@ -10,6 +11,7 @@ from apollo_log import init_log
 from apollo_tts import tts
 from apollo_timestamp import timestamp
 from apollo_memeify import memeify
+from apollo_preprocess import preprocess
 from forge import forge_meme
 import json
 
@@ -32,17 +34,17 @@ parser = argparse.ArgumentParser(
     description="Repeatedly performs the next step of the Apollo production process on a raw, voc xml or meme, "
                 "until a video is produced or a fatal error occurs.")
 parser.add_argument("filename")
-args = parser.parse_args()
-path = Path(args.filename)
+#args = parser.parse_args()
+#path = Path(args.filename)
+path = Path(r"C:\Users\wjbee\Desktop\Raptor\scripts\test\test.txt")
 
 init_log(path)
 
 config.initialize(["PRODUCTION"])
-
 stem = path.parent / path.stem
 
 output = ""
-
+preprocessed = False
 while True:
     # stop on error
     if "exception" in output.lower() or "error" in output.lower():
@@ -62,9 +64,14 @@ while True:
                 forge_meme(str(stem.with_suffix(".json")))
                 break
                 # all done!
+    elif os.path.exists(stem.with_suffix(".txt")) and preprocessed is True:
+        memeify(str(path))
 
     elif os.path.exists(stem.with_suffix(".txt")):
-        memeify(str(path))
+        preprocess(str(path))
+        preprocessed = True
+
+
 
     else:
         raise ValueError(f"{str(path)} cannot be processed by Apollo")

@@ -5,7 +5,7 @@ from time import gmtime
 import json
 import logging as log
 
-
+characters_per_line = 20
 def add_description(meme_filename):
     class Description:
         def __init__(self, meme_path, first_chapter_name):
@@ -36,7 +36,6 @@ def calculate_blocks(meme_filename):
     meme = json.load(open(str(meme_filename)))
     captions = meme["captions"]
 
-    characters_per_line = 20
     block_starts_list = []
     block_ends_list = []
 

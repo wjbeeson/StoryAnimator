@@ -120,4 +120,4 @@ def tts(meme_filename):
         log.exception("TTS failed")
 
 
-#tts(r"C:\Users\wjbee\Desktop\Raptor\scripts\test.json")
+#tts(r"C:\Users\wjbee\Desktop\Raptor\scripts\test\test.json")
