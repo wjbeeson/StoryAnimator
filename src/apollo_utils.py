@@ -40,10 +40,16 @@ def split_keep_spaces(text):
             return False
         else:
             return True
+    def punctuation_island(variable):
+        if any(c.isalpha() for c in variable) or any(c.isdigit() for c in variable):
+            return True
+        else:
+            return False
     split = re.split(r'(?<=[\ ])\s*', text)
     remove_empty = list(filter(None, split))
     remove_spaces = list(filter(unwanted_chars, remove_empty))
-    return remove_spaces
+    remove_punc_islands = list(filter(punctuation_island, remove_spaces))
+    return remove_punc_islands
 
 
 def get_tokens(text, discard_ws = True):

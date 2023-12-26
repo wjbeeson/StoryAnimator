@@ -32,7 +32,7 @@ def forge_meme(meme_filename, remotion_output_dirname=r"C:\Users\wjbee\JSProject
     json_obj = {}
     json_obj["propsFilename"] = props_local_path
     json_txt = json.dumps(json_obj)
-    json_filename = str(meme_filepath.parent) + "\\" + (meme_filepath.stem + "_props.json")
+    json_filename = str(meme_filepath.with_suffix(".props"))
     with open(json_filename, "w") as outfile:
         outfile.write(json_txt)
     command = f"npx remotion render VideoComp out/{meme_filepath.stem}.mp4 --props={json_filename}"
@@ -81,4 +81,4 @@ def add_background(overlay_path, background_filename, output_path, chroma_key_he
 
     ffmpeg.concat(input_video, input_audio, v=1, a=1).output(output_path).run(overwrite_output=True)
 
-# forge_meme(r"C:\Users\wjbee\Desktop\Raptor\scripts\test\test.json")
+#forge_meme(r"C:\Users\wjbee\Desktop\Raptor\scripts\test\test.json")

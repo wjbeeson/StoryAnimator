@@ -34,9 +34,9 @@ parser = argparse.ArgumentParser(
     description="Repeatedly performs the next step of the Apollo production process on a raw, voc xml or meme, "
                 "until a video is produced or a fatal error occurs.")
 parser.add_argument("filename")
-#args = parser.parse_args()
-#path = Path(args.filename)
-path = Path(r"C:\Users\wjbee\Desktop\Raptor\scripts\test\test.txt")
+args = parser.parse_args()
+path = Path(args.filename)
+#path = Path(r"C:\Users\wjbee\Desktop\Raptor\scripts\test\test.txt")
 
 init_log(path)
 

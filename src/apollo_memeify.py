@@ -35,7 +35,7 @@ def find_tags(para, word_count, default_speaker_id="Talon", default_emotion="neu
             match tag_type:
                 case "s" | "speaker":
                     speaker = raw_tag_value.translate(str.maketrans('', '', string.punctuation)).replace(" ",
-                                                                                                         "").lower()
+                                                                                                         "").title()
                     if speaker in variable_map:
                         speaker = variable_map[speaker]
                 case "def" | "speaker_def":
@@ -128,7 +128,7 @@ def memeify(raw_filename, overwrite=False):
         text = [para.replace('\n', ' ') for para in f.read().split('\n\n') if para != '']
     for i, para in enumerate(text):
         para = re.sub(' +', ' ', para)
-        para = para.strip()
+        para = para.strip().replace("﻿", "")
         para = para + " "
         text[i] = para
 
