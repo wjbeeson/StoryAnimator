@@ -7,10 +7,11 @@ g_eleven = ElevenLabsSpeechProvider(config.ELEVENLABS_API_KEY_FILENAME)
 
 
 class VoiceConfig:
-    def __init__(self, rate=None, volume=None, pitch=None):
+    def __init__(self, rate=None, volume=None, pitch=None, eop_delay=None):
         self.rate = rate
         self.volume = volume
         self.pitch = pitch
+        self.eop_delay = eop_delay
 
 
 predefined_voices = {
@@ -28,11 +29,11 @@ predefined_voices = {
     "Jacob": (g_google, "en-US-Neural2-J", VoiceConfig()),
     "Talon": (g_google, "en-US-News-N", VoiceConfig()),
 
-    "Sarah": (g_google, "en-US-Studio-O", VoiceConfig()),
-    "Chad": (g_google, "en-US-Studio-M", VoiceConfig()),
+    "Sarah": (g_google, "en-US-Studio-O", VoiceConfig(rate=1.0, pitch=0.97)),
+    "Chad": (g_google, "en-US-Studio-M", VoiceConfig(rate=1.1)),
 
     "David": (g_google, "en-US-Journey-D", VoiceConfig(rate=1.2, pitch=0.95)),
-    "Jill": (g_google, "en-US-Journey-F", VoiceConfig()),
+    "Jill": (g_google, "en-US-Journey-F", VoiceConfig(rate=1.1, pitch=0.95, eop_delay=0.5)),
 
     "Adam": (g_eleven, "Adam", VoiceConfig()),
     "Antoni": (g_eleven, "Antoni", VoiceConfig()),
