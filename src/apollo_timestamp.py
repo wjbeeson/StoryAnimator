@@ -34,18 +34,6 @@ g_config = speech.RecognitionConfig(
 )
 
 
-def normalize_tokens(tokens):
-    normalized_tokens = []
-
-    token: str
-    for token in tokens:
-        token = apollo_utils.str_remove_any(token, string.punctuation)
-        if token:
-            normalized_tokens += [token.casefold()]
-
-    return normalized_tokens
-
-
 def add_timestamps_to_meme(meme_filename):
     meme = json.load(open(str(meme_filename)))
     dialogue = meme["dialogue"]
@@ -74,32 +62,41 @@ def add_timestamps_to_meme(meme_filename):
             timestamps_list.extend(finished_timestamps[i])
         else:
             raw_timestamps = raw_timestamps_list[i]
-            # use expected representation: list of (time,word,_) tuples
-            raw_timestamps = [(entry['start_time'], normalize_tokens([entry['alternatives'][0]['content']])[0], None)
-                              for entry in raw_timestamps]
 
-            words = normalize_tokens(apollo_utils.get_tokens(dialogue[str(i)]["speak"]))
+            # use expected representation: list of (time,word,_) tuples
+            detected_timestamps = []
+            for entry in raw_timestamps:
+                entry: {}
+                word = apollo_utils.get_word_list(entry['alternatives'][0]['content'], tokens=True)[0]
+                ts = entry['start_time']
+                detected_timestamps.append(TimeStampNode(word, ts))
+
+            actual_tokens = apollo_utils.get_word_list(dialogue[str(i)]["speak"], tokens=True)
 
             # align timestamps using NW algorithm
             tokens, nodes = dna_align(
-                words,
-                [TimeStampNode(word, ts) for ts, word, _ in raw_timestamps]
+                actual_tokens,
+                detected_timestamps
             )
 
+            # remove empty spaces inserted by NW in mismatch cases
             timestamps = align(tokens, nodes)
+
+            # convert timestamps from relative to absolute
             for j, ts in enumerate(timestamps):
                 timestamps[j] = round((ts + total_duration), 2)
 
             timestamps_list.extend(timestamps)
             # should be one timestamp for each word, not tokens (which was returned by nw)
             # because there could be '-' insertions
-            assert len(timestamps) == len(words)
+            assert len(timestamps) == len(actual_tokens)
             dialogue[str(i)]["timestamps"] = timestamps
             with open(str(meme_filename), "w") as f:
                 f.write(json.dumps(meme))
         total_duration += apollo_utils.probe_audio(filename)
     meme["timestamps"] = timestamps_list
     return meme
+
 
 def timestamp(meme_filename):
     try:
@@ -203,3 +200,6 @@ def get_timestamps_from_narration(audio_file):
                 continue
             results.append(token)
         return results
+
+
+timestamp(r"C:\Users\wjbee\PycharmProjects\Raptor\src\tests\timestamp_test\timestamp_test.json")

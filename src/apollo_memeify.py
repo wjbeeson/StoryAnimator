@@ -1,14 +1,15 @@
+import os.path
 import string
 
 from cssutils import CSSParser
 
-from apollo_utils import split_keep_spaces
+from apollo_utils import get_word_list
 import apollo_config as config
 import logging as log
 from pathlib import Path
 import json
 import re
-
+from PIL import Image
 
 def get_tag_type(tag):
     tag = tag.replace("<", "").replace(">", "")
@@ -56,12 +57,12 @@ def find_tags(para, word_count, default_speaker_id="Talon", default_emotion="neu
             raise Exception(f"Invalid tag: {para}")
         else:
             loop = False
-    tokens = split_keep_spaces(para)
+    words = get_word_list(para, tokens=False)
 
     word_pos_emotions = {}
     word_pos_headings = {}
     char_index = 0
-    for i, token in enumerate(tokens):
+    for i, token in enumerate(words):
         token_len = len(token)
         if len(char_pos_emotions) != 0:
             char_pos_emotion = list(char_pos_emotions.keys())[0]
@@ -76,7 +77,7 @@ def find_tags(para, word_count, default_speaker_id="Talon", default_emotion="neu
                 del char_pos_headings[char_pos_heading]
         char_index += token_len
 
-    word_count += len(tokens)
+    word_count += len(words)
     para_removed_tags = para
     return para_removed_tags, word_count, speaker, word_pos_emotions, word_pos_headings
 
@@ -153,7 +154,7 @@ def memeify(raw_filename, overwrite=False):
             default_emotion="neutral")
         emotions.update(para_emotions)
         headings.update(para_headings)
-        captions.extend(split_keep_spaces(para_removed_tags))
+        captions.extend(get_word_list(para_removed_tags, tokens=False))
 
         dialogue = {}
         dialogue["speakerID"] = speaker_id
@@ -169,7 +170,7 @@ def memeify(raw_filename, overwrite=False):
     for i in range(len(meme["dialogue"])):
         dialogue = meme["dialogue"][str(i)]
         style_id = dialogue["styleID"]
-        word_count = len(split_keep_spaces(dialogue["speak"]))
+        word_count = len(dialogue["speak"])
         for j in range(word_count):
             styles.append(style_id)
     meme["styleIDs"] = styles
@@ -177,5 +178,9 @@ def memeify(raw_filename, overwrite=False):
     f.write(json.dumps(meme))
     f.close()
 
+    # create empty PNG for easy renaming later
+    if not os.path.isfile(str(Path(raw_filename).with_suffix(".png"))):
+        im = Image.new(mode="RGB", size=(200, 200))
+        im.save(str(Path(raw_filename).with_suffix(".png")))
 
 #memeify(r"C:\Users\wjbee\Desktop\Raptor\scripts\test\test.txt")

@@ -7,11 +7,12 @@ g_eleven = ElevenLabsSpeechProvider(config.ELEVENLABS_API_KEY_FILENAME)
 
 
 class VoiceConfig:
-    def __init__(self, rate=None, volume=None, pitch=None, eop_delay=None):
+    def __init__(self, rate=None, volume=None, pitch=None, eop_delay=None, model=None):
         self.rate = rate
         self.volume = volume
         self.pitch = pitch
         self.eop_delay = eop_delay
+        self.model = model
 
 
 predefined_voices = {
@@ -29,7 +30,7 @@ predefined_voices = {
     "Jacob": (g_google, "en-US-Neural2-J", VoiceConfig()),
     "Talon": (g_google, "en-US-News-N", VoiceConfig()),
 
-    "Sarah": (g_google, "en-US-Studio-O", VoiceConfig(rate=1.0, pitch=0.97)),
+    #"Sarah": (g_google, "en-US-Studio-O", VoiceConfig(rate=1.0, pitch=0.97)),
     "Chad": (g_google, "en-US-Studio-M", VoiceConfig(rate=1.1)),
 
     "David": (g_google, "en-US-Journey-D", VoiceConfig(rate=1.2, pitch=0.95)),
@@ -40,6 +41,7 @@ predefined_voices = {
     "Arnold": (g_eleven, "Arnold", VoiceConfig()),
     "Bella": (g_eleven, "Bella", VoiceConfig()),
     "Bruce": (g_eleven, "Bruce", VoiceConfig()),
+    "Bria": (g_eleven, "Bria", VoiceConfig()),
     "Domi": (g_eleven, "Domi", VoiceConfig()),
     "Elli": (g_eleven, "Elli", VoiceConfig()),
     "Josh": (g_eleven, "Josh", VoiceConfig()),
@@ -49,5 +51,5 @@ predefined_voices = {
     "Myra": (g_eleven, "Myra", VoiceConfig()),
     "Rakesh": (g_eleven, "Rakesh", VoiceConfig()),
     "Natasha": (g_eleven, "Natasha", VoiceConfig()),
-    "Jayce": (g_eleven, "Jayce", VoiceConfig())
+    "Jayce": (g_eleven, "Jayce", VoiceConfig(model="eleven_multilingual_v1"))
 }

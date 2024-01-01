@@ -1,80 +1,49 @@
-import pathlib
+import random
+import re
+from pathlib import Path
+import ffmpeg
 import string
 
-import pandas as pd
-import statistics
-import numpy as np
-import re
-import ffmpeg
-# opencv-python
-import cv2
-import xml.etree.ElementTree as XmlElementTree
-import io
-
-from string import punctuation
-
-import random
-
-from pathlib import Path
-
-
 def select_random_element(l):
-    return l[random.randrange(0,len(l))]
+    return l[random.randrange(0, len(l))]
+
+
 def get_narration_filename(meme_filename, index):
     meme_filepath = Path(meme_filename)
     filename = str(meme_filepath.parent) + "\\" + str(meme_filepath.stem) + f"_{index}.wav"
     return filename
 
 
-def str_remove_any(s, chars_to_remove):
-    return s.translate({ord(i): None for i in chars_to_remove})
+def get_word_list(text, tokens=True):
+    # Replace troublesome characters
+    text = text.replace("’", "'")
 
+    # Define characters to split on
+    whitespace_chars = "\n\t "
 
+    # Define characters to keep
+    allowed_punctuation = '^″‶?.,"!\-:;\'’`\(\)\/\[\]'
+    if tokens:
+        text = text.translate(str.maketrans('', '', string.punctuation))
+        text = text.lower()
 
-WHITESPACE_CHARS = "\n\t "
+    # Perform regex split
+    regex = f"[-+*•\w{allowed_punctuation}]+|[{whitespace_chars}]+"
+    words = []
+    for word in re.findall(regex, text):
+        if word[0] not in whitespace_chars:
 
-def split_keep_spaces(text):
-    def unwanted_chars(variable):
-        letters = [' ', '\n', '\t']
-        if (variable in letters and len(variable) == 1):
-            return False
-        else:
-            return True
-    def punctuation_island(variable):
-        if any(c.isalpha() for c in variable) or any(c.isdigit() for c in variable):
-            return True
-        else:
-            return False
-    split = re.split(r'(?<=[\ ])\s*', text)
-    remove_empty = list(filter(None, split))
-    remove_spaces = list(filter(unwanted_chars, remove_empty))
-    remove_punc_islands = list(filter(punctuation_island, remove_spaces))
-    return remove_punc_islands
+            # check for punctuation island
+            if re.search('[a-zA-Z]', word) is None and re.search('\d+', word) is None:
+                if len(words) > 0:
+                    words[-1] += word
+            else:
 
-
-def get_tokens(text, discard_ws = True):
-    text = text.replace("’","'")
-    """
-    Parses text into a list of word tokens and whitespace tokens
-    Returns
-    -------
-
-    """
-    punctuation = '^″‶?.,"!\-:;\'’`\(\)\/'
-    regex = f"[-+*•\w{punctuation}]+|[{WHITESPACE_CHARS}]+"
-    return [ word for word in re.findall(regex, text) if not discard_ws or word[0] not in WHITESPACE_CHARS]
-
-
-
-
-def strip_ws(text):
-    return " ".join(get_tokens(text))
-
-def count_word_tokens( token_list ):
-    return len([token for token in token_list if token[0] not in WHITESPACE_CHARS])
-
-def count_words( text ):
-    return count_word_tokens(get_tokens(text))
+                # add space at end of word if not a token
+                if not tokens:
+                    word += " "
+                words.append(word)
+    return words
 
 def probe_video(video_path):
     probe = ffmpeg.probe(video_path)
@@ -99,5 +68,3 @@ def probe_audio(audio_file):
     stream = next((stream for stream in probe['streams'] if stream['codec_type'] == 'audio'), None)
     duration = float(stream['duration'])
     return (duration)
-
-pass

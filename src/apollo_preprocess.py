@@ -2,7 +2,7 @@ import string
 
 from cssutils import CSSParser
 
-from apollo_utils import split_keep_spaces
+from apollo_utils import get_word_list
 import apollo_config as config
 import logging as log
 from pathlib import Path
@@ -54,7 +54,7 @@ def preprocess(raw_filename):
     for para in text:
         para = remove_tags(para)
         error = log_abbreviations(para)
-        tokens = split_keep_spaces(para)
+        tokens = get_word_list(para, tokens=False)
         if len(tokens) > 5000:
             log.error(f"Paragraph exceeds 5000 tokens: {para}")
             error = True

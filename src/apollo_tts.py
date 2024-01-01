@@ -22,7 +22,7 @@ def _lookup_provider(voice_name):
     else:
         # since there are new 11L voices being added to the library each day, make it easy to select
         # new ones.  assume any unrecognized voice is 11Labs
-        return (g_eleven, voice_name.title(), None)
+        return (g_eleven, voice_name.title(), VoiceConfig())
 
 
 def postprocess_narration(filename, voice_config):
@@ -54,9 +54,6 @@ def postprocess_narration(filename, voice_config):
         concat = audio + silent_audio
         concat.export(temp_filename, format="wav")
         shutil.move(temp_filename, filename)
-    rate, data = wavfile.read(str(Path(filename).with_suffix(".wav")))
-    reduced_noise = nr.reduce_noise(y=data, sr=rate)
-    wavfile.write("mywav_reduced_noise.wav", rate, reduced_noise)
 
 
 def tts(meme_filename):
@@ -79,7 +76,7 @@ def tts(meme_filename):
             # say the ssml text if specified, otherwise say the caption text.
             # note: this code will always write a narration .wav, even for blank text
             log.info(f"Performing TTS for: {str(Path(filename).name)}")
-            provider.say(voice_id, dialogue["speak"], filename)
+            provider.say(voice_id, dialogue["speak"], filename, voice_config.model)
             postprocess_narration(filename, voice_config)
 
         audio_inputs = []
@@ -103,5 +100,5 @@ def tts(meme_filename):
     except Exception as x:
         log.exception("TTS failed")
 
-pass
-#tts(r"C:\Users\wjbee\Desktop\Raptor\scripts\12.26.2023\Mustard_Blowup.json")
+
+#tts(r"C:\Users\wjbee\Desktop\Raptor\scripts\12.27.2023\New_Daughter_15.json")
