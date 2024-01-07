@@ -10,76 +10,7 @@ from pathlib import Path
 import json
 import re
 from PIL import Image
-
-def get_tag_type(tag):
-    tag = tag.replace("<", "").replace(">", "")
-    tag_split = tag.split("=")
-    tag_type = tag_split[0].translate(str.maketrans('', '', string.punctuation)).strip()
-    raw_tag_value = tag_split[1].strip()
-    return (tag_type, raw_tag_value)
-
-
-variable_map = {}
-
-
-def find_tags(para, word_count, default_speaker_id="Talon", default_emotion="neutral", ):
-    speaker = default_speaker_id
-    char_pos_emotions = {0: default_emotion}
-    char_pos_headings = {}
-    loop = True
-    while loop:
-        if para.find("<") != -1 and para.find(">") != -1:
-            start = para.find("<")
-            end = para.find(">")
-            tag = para[start + 1:end]
-            (tag_type, raw_tag_value) = get_tag_type(tag)
-            match tag_type:
-                case "s" | "speaker":
-                    speaker = raw_tag_value.translate(str.maketrans('', '', string.punctuation)).replace(" ",
-                                                                                                         "").title()
-                    if speaker in variable_map:
-                        speaker = variable_map[speaker]
-                case "def" | "speaker_def":
-                    split = raw_tag_value.replace(" ", "").split(",")
-                    for vm in split:
-                        map_split = vm.split(":")
-                        variable_map[map_split[0].lower()] = map_split[1].translate(
-                            str.maketrans('', '', string.punctuation)).title()
-                case "e" | "emotion":
-                    char_pos_emotions[start] = raw_tag_value.translate(
-                        str.maketrans('', '', string.punctuation)).replace(" ", "").lower()
-                case "h" | "heading":
-                    char_pos_headings[start] = raw_tag_value
-                case _:
-                    raise Exception(f"Unknown tag type {tag_type}")
-            para = para[:start] + para[end + 1:]
-        elif para.find("<") != -1 or para.find(">") != -1:
-            raise Exception(f"Invalid tag: {para}")
-        else:
-            loop = False
-    words = get_word_list(para, tokens=False)
-
-    word_pos_emotions = {}
-    word_pos_headings = {}
-    char_index = 0
-    for i, token in enumerate(words):
-        token_len = len(token)
-        if len(char_pos_emotions) != 0:
-            char_pos_emotion = list(char_pos_emotions.keys())[0]
-            if char_index + token_len > char_pos_emotion:
-                word_pos_emotions[i + word_count] = char_pos_emotions[char_pos_emotion]
-                del char_pos_emotions[char_pos_emotion]
-
-        if len(char_pos_headings) != 0:
-            char_pos_heading = list(char_pos_headings.keys())[0]
-            if char_index + token_len > char_pos_heading:
-                word_pos_headings[i + word_count] = char_pos_headings[char_pos_heading]
-                del char_pos_headings[char_pos_heading]
-        char_index += token_len
-
-    word_count += len(words)
-    para_removed_tags = para
-    return para_removed_tags, word_count, speaker, word_pos_emotions, word_pos_headings
+from bs4 import BeautifulSoup
 
 
 class Styleparser():
@@ -126,43 +57,40 @@ def memeify(raw_filename, overwrite=False):
 
     with open(raw_filename, "r", encoding="utf-8") as f:
         # split into paragraphs, dropping repeated linefeeds e.g. \n\n \n\n\n etc
-        text = [para.replace('\n', ' ') for para in f.read().split('\n\n') if para != '']
-    for i, para in enumerate(text):
-        para = re.sub(' +', ' ', para)
-        para = para.strip().replace("﻿", "")
-        para = para + " "
-        text[i] = para
+        html_file = open(str(Path(raw_filename).with_suffix(".html")), 'r', encoding='utf-8')
+        paragraphs = list(BeautifulSoup(html_file.read(), 'lxml').body.findAll('p'))
 
     # create caption content for each paragraph
     word_count = 0
-    emotions = {}
     captions = []
     headings = {}
-    speaker_id = default_speaker_id
+    voice_config = json.load(open(str(config.APOLLO_PATH / "config/voice_config.json")))
     styleparser = Styleparser()
-    for i, para in enumerate(text):
-        (
-            para_removed_tags,
-            word_count,
-            speaker_id,
-            para_emotions,
-            para_headings
-        ) = find_tags(
-            para=para,
-            word_count=word_count,
-            default_speaker_id=speaker_id,
-            default_emotion="neutral")
-        emotions.update(para_emotions)
-        headings.update(para_headings)
-        captions.extend(get_word_list(para_removed_tags, tokens=False))
+    for i, para in enumerate(paragraphs):
+        # Step 1: Get the speaker ID and header
+        if "title" in para.attrs:
+            headings[str(word_count)] = para.attrs["title"]
+        editing_id = para.attrs["class"][0]
+        speaker_id = default_speaker_id
+        if editing_id in voice_config:
+            speaker_id = voice_config[editing_id]
+
+        # Step 2: Convert the html to text and parse
+        raw_text = para.text
+        raw_text = raw_text.replace("\n", "")
+        raw_text = re.sub(' +', ' ', raw_text)
+        text = raw_text + " "
+
+        captions.extend(get_word_list(text, tokens=False))
+        word_count += (len(captions) - word_count)
 
         dialogue = {}
         dialogue["speakerID"] = speaker_id
         dialogue["styleID"] = styleparser.get_style_id(speaker_id)
-        dialogue["speak"] = para_removed_tags
+        dialogue["speak"] = text
         meme["dialogue"][str(i)] = dialogue
+
     meme["headings"] = headings
-    meme["emotions"] = emotions
     meme["captions"] = captions
     meme["state"] = "FORMATTED"
 
@@ -170,7 +98,7 @@ def memeify(raw_filename, overwrite=False):
     for i in range(len(meme["dialogue"])):
         dialogue = meme["dialogue"][str(i)]
         style_id = dialogue["styleID"]
-        word_count = len(dialogue["speak"])
+        word_count = len(get_word_list(dialogue["speak"], tokens=False))
         for j in range(word_count):
             styles.append(style_id)
     meme["styleIDs"] = styles
@@ -188,4 +116,6 @@ def memeify(raw_filename, overwrite=False):
     comments_filepath = raw_filepath.with_suffix(".cmmts")
     with open(comments_filepath, "w") as f:
         f.write("")
-#memeify(r"C:\Users\wjbee\Desktop\Raptor\scripts\test\test.txt")
+
+
+memeify(r"C:\Users\wjbee\Desktop\Raptor\scripts\01.07.2024\New_Daughter_15\New_Daughter_15.txt")
