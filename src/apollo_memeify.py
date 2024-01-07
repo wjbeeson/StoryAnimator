@@ -22,7 +22,7 @@ def get_tag_type(tag):
 variable_map = {}
 
 
-def find_tags(para, word_count, default_speaker_id="Talon", default_emotion="neutral"):
+def find_tags(para, word_count, default_speaker_id="Talon", default_emotion="neutral", ):
     speaker = default_speaker_id
     char_pos_emotions = {0: default_emotion}
     char_pos_headings = {}
@@ -183,4 +183,9 @@ def memeify(raw_filename, overwrite=False):
         im = Image.new(mode="RGB", size=(200, 200))
         im.save(str(Path(raw_filename).with_suffix(".png")))
 
+    # create empty COMMENTS file for easy adding
+    raw_filepath = Path(raw_filename)
+    comments_filepath = raw_filepath.with_suffix(".cmmts")
+    with open(comments_filepath, "w") as f:
+        f.write("")
 #memeify(r"C:\Users\wjbee\Desktop\Raptor\scripts\test\test.txt")

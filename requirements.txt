@@ -18,3 +18,8 @@ xsdata~=23.8
 elevenlabslib~=0.16.2
 google-cloud-speech
 google-cloud-texttospeech
+noisereduce~=3.0.0
+scipy~=1.12.0rc1
+cssutils~=2.9.0
+pvrecorder~=1.2.1
+dominate~=2.9.1

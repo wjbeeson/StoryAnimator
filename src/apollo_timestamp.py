@@ -200,6 +200,3 @@ def get_timestamps_from_narration(audio_file):
                 continue
             results.append(token)
         return results
-
-
-timestamp(r"C:\Users\wjbee\PycharmProjects\Raptor\src\tests\timestamp_test\timestamp_test.json")

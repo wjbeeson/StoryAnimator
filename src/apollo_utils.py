@@ -13,6 +13,23 @@ def get_narration_filename(meme_filename, index):
     filename = str(meme_filepath.parent) + "\\" + str(meme_filepath.stem) + f"_{index}.wav"
     return filename
 
+def get_paragraph_list(text):
+    text_list = []
+    for para in text.split('\n\n'):
+        if len(para) == 0:
+            continue
+        para = para.replace("﻿", "")
+        para = para.replace("’", "'")
+        para = para.replace("“", "\"")
+        para = para.replace("”", "\"")
+        para = para.replace("…", "...")
+        para = para.replace("–", "-")
+        para = para.replace("—", "-")
+        para = para.replace("‘", "'")
+        para = para.replace("´", "'")
+        para = para + " "
+        text_list.append(para)
+    return text_list
 
 def get_word_list(text, tokens=True):
     # Replace troublesome characters

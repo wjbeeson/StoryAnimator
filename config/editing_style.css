@@ -1,0 +1,58 @@
+body {
+  color: lightgray;
+  font-size: 50px;
+}
+.narrator,
+.n {
+  color: rgb(0, 0, 0);
+  font-style: oblique;
+}
+.sassy {
+  color: rgb(255, 0, 132);
+}
+.smart {
+  color: rgb(255, 174, 0);
+}
+.happy {
+  color: rgb(255, 106, 0);
+}
+
+.m1 {
+  color: black;
+}
+.m2 {
+  color: rgb(23, 139, 0);
+}
+.m3 {
+  color: rgb(0, 72, 139);
+}
+.m4 {
+  color: rgb(139, 139, 0);
+}
+.m5 {
+  color: rgb(139, 53, 0);
+}
+
+.f1 {
+  color: rgb(171, 60, 60);
+}
+.f2 {
+  color: rgb(0, 149, 141);
+}
+.f3 {
+  color: rgb(77, 0, 211);
+}
+.f4 {
+  color: darkgoldenrod;
+}
+.f5 {
+  color: darkmagenta;
+}
+
+.chapter,
+.c {
+  color: rgba(255, 0, 0);
+  font-style: normal;
+  font-weight: bold;
+  text-decoration: underline;
+}
