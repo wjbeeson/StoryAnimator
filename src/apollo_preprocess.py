@@ -8,18 +8,6 @@ from dominate.tags import *
 import apollo_config as config
 from apollo_utils import get_paragraph_list
 
-common_abbreviations = {
-    "MIL": "Mother in law",
-    "FIL": "Father in law",
-    "BIL": "Brother in law",
-    "SIL": "Sister in law",
-    "tl;dr": "Too long; didn't read",
-    "Tl;dr": "Too long; didn't read",
-    "TL;DR": "Too long; didn't read",
-    "AP ": "Affair Partner ",
-    "SO ": "Significant Other ",
-}
-
 
 def preprocess(raw_filename):
     log.info(f"Preprocessing {raw_filename}")
@@ -31,6 +19,6 @@ def preprocess(raw_filename):
         with doc.head:
             link(rel='stylesheet', href=Path(css_filename).name)
         for para in text:
-            p(para, _class='UNDEFINED')
+            p(para, _class='UNDEFINED', emotion="neutral")
     with open(str(Path(raw_filename).with_suffix(".html")), 'w') as f:
         f.write(doc.render())

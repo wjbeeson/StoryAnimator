@@ -30,7 +30,7 @@ class OBSManager:
         for file in sorted_files:
             os.remove(file)
 
-    def check_if_recorded(self, i=None):
+    def check_if_recorded(self):
         narration_filename = self.get_narration_filename()
         files = [str(Path(self.raw_filename).parent) + "\\" + x for x in
                  os.listdir(str(Path(self.raw_filename).parent))]

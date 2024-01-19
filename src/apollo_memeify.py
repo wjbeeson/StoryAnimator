@@ -70,6 +70,7 @@ def memeify(raw_filename, overwrite=False):
         # Step 1: Get the speaker ID and header
         if "title" in para.attrs:
             headings[str(word_count)] = para.attrs["title"]
+        emotion = para.attrs["emotion"]
         editing_id = para.attrs["class"][0]
         speaker_id = default_speaker_id
         if editing_id in voice_config:
@@ -85,6 +86,7 @@ def memeify(raw_filename, overwrite=False):
         word_count += (len(captions) - word_count)
 
         dialogue = {}
+        dialogue["emotion"] = emotion
         dialogue["speakerID"] = speaker_id
         dialogue["styleID"] = styleparser.get_style_id(speaker_id)
         dialogue["speak"] = text
@@ -118,4 +120,4 @@ def memeify(raw_filename, overwrite=False):
         f.write("")
 
 
-memeify(r"C:\Users\wjbee\Desktop\Raptor\scripts\01.07.2024\New_Daughter_15\New_Daughter_15.txt")
+#memeify(r"C:\Users\wjbee\Desktop\Raptor\scripts\01.07.2024\New_Daughter_15\New_Daughter_15.txt")
